@@ -26,7 +26,7 @@ export default function Navbar() {
     { label: 'How it works', sectionId: 'how-it-works' },
     { label: 'Features', sectionId: 'features' },
     { label: 'FAQ', sectionId: 'faq' },
-    { label: 'GitHub ↗', href: 'https://github.com', external: true },
+    { label: 'GitHub ↗', href: 'https://github.com/mauryasagar/DataSense', external: true },
   ]
 
   return (
