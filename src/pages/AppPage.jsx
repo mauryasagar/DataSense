@@ -444,8 +444,8 @@ function ModelStatusBanner({ status, progress, error, loadModels, modelCached })
             <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed mt-1">
               {status === 'idle' && (
                 modelCached
-                  ? 'Model is cached locally. Click to load — takes ~20s to initialize. Data exploration works without it.'
-                  : 'One-time ~350MB download needed for AI Q&A, summaries & notebook explainer. CSV data analysis works right now.'
+                  ? 'Model is cached locally. Click to load — takes ~2-5s to initialize. Data exploration works without it.'
+                  : 'One-time ultra-lightweight ~35MB download needed for AI Q&A, summaries & notebook explainer. CSV data analysis works right now.'
               )}
               {isLoading && 'Downloading WebAssembly runtimes and AI weights. Please keep this tab active.'}
               {isInitializing && 'Compiling and loading model weights into WebAssembly memory. Almost ready…'}
