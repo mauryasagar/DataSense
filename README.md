@@ -196,7 +196,17 @@ Open **http://localhost:5173** and upload a CSV, PDF, or `.ipynb` file to begin.
 
 ## 🎥 Demo and Screenshots
  
-- **Screenshots**: *(Add your screenshots here)*
+- **Screenshots**:
+
+<img src="https://github.com/user-attachments/assets/692d0e4f-1f85-41b7-bb4d-04d3ee71a1c9" alt="Landing Page" width="500" />
+<p><em>Landing page</em></p>
+
+<img src="https://github.com/user-attachments/assets/81c2c5a8-d057-46b5-af2b-fec9eb92d8d0" alt="EDA Copilot Dashboard" width="500" />
+<p><em>EDA Copilot — instant local analysis</em></p>
+
+<img src="https://github.com/user-attachments/assets/8be7f116-5f1b-4a4c-959a-c80dcbf2d5f5" alt="Notebook Explainer" width="500" />
+<p><em>Notebook Explainer</em></p>
+
 
 ---
 
