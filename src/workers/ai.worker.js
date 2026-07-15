@@ -49,7 +49,7 @@ self.addEventListener('message', async (event) => {
         if (!generatorPipeline) {
           generatorPipeline = await pipeline(
             'text-generation',
-            'onnx-community/SmolLM2-135M-Instruct',
+            'onnx-community/SmolLM2-135M-Instruct-ONNX',
             { 
               progress_callback: makeProgressCallback('smollm'),
               dtype: 'q4',
@@ -59,7 +59,7 @@ self.addEventListener('message', async (event) => {
             // Fallback to WASM if WebGPU is not available
             pipeline(
               'text-generation',
-              'onnx-community/SmolLM2-135M-Instruct',
+              'onnx-community/SmolLM2-135M-Instruct-ONNX',
               {
                 progress_callback: makeProgressCallback('smollm'),
                 dtype: 'q4'
