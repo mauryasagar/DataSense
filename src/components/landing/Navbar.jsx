@@ -15,10 +15,17 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  const scrollToSection = (id) => {
+    const el = document.getElementById(id)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
   const navLinks = [
-    { label: 'How it works', href: '#how-it-works' },
-    { label: 'Features', href: '#features' },
-    { label: 'FAQ', href: '#faq' },
+    { label: 'How it works', sectionId: 'how-it-works' },
+    { label: 'Features', sectionId: 'features' },
+    { label: 'FAQ', sectionId: 'faq' },
     { label: 'GitHub ↗', href: 'https://github.com', external: true },
   ]
 
@@ -45,17 +52,27 @@ export default function Navbar() {
 
         {/* Center nav — desktop */}
         <div className="hidden md:flex items-center gap-7">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              target={link.external ? '_blank' : undefined}
-              rel={link.external ? 'noopener noreferrer' : undefined}
-              className="nav-link pb-0.5"
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) =>
+            link.external ? (
+              <a
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="nav-link pb-0.5"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <button
+                key={link.label}
+                onClick={() => scrollToSection(link.sectionId)}
+                className="nav-link pb-0.5 bg-transparent border-none cursor-pointer"
+              >
+                {link.label}
+              </button>
+            )
+          )}
         </div>
 
         {/* Right: theme toggle + CTA */}
@@ -103,17 +120,28 @@ export default function Navbar() {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-4 py-4 flex flex-col gap-3 animate-fade-in">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              target={link.external ? '_blank' : undefined}
-              className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 py-2"
-              onClick={() => setMenuOpen(false)}
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) =>
+            link.external ? (
+              <a
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 py-2"
+                onClick={() => setMenuOpen(false)}
+              >
+                {link.label}
+              </a>
+            ) : (
+              <button
+                key={link.label}
+                onClick={() => { scrollToSection(link.sectionId); setMenuOpen(false) }}
+                className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 py-2 text-left bg-transparent border-none cursor-pointer"
+              >
+                {link.label}
+              </button>
+            )
+          )}
           <button
             onClick={() => { setMenuOpen(false); navigate('/app') }}
             className="btn-primary flex items-center justify-center gap-2 px-5 py-3 text-sm mt-2"
