@@ -45,13 +45,13 @@ self.addEventListener('message', async (event) => {
           }
         };
 
-        // Load unified Qwen text-generation pipeline if not loaded
+        // Load unified SmolLM text-generation pipeline if not loaded
         if (!generatorPipeline) {
           generatorPipeline = await pipeline(
             'text-generation',
-            'Xenova/Qwen1.5-0.5B-Chat',
+            'onnx-community/SmolLM-135M-Instruct',
             { 
-              progress_callback: makeProgressCallback('qwen'),
+              progress_callback: makeProgressCallback('smollm'),
               quantized: true
             }
           );
