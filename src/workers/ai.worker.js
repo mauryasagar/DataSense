@@ -49,7 +49,7 @@ self.addEventListener('message', async (event) => {
         if (!generatorPipeline) {
           generatorPipeline = await pipeline(
             'text-generation',
-            'onnx-community/SmolLM-135M-Instruct',
+            'onnx-community/SmolLM-135M-Instruct-ONNX',
             { 
               progress_callback: makeProgressCallback('smollm'),
               quantized: true
