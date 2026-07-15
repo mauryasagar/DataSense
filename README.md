@@ -1,97 +1,163 @@
-# DataSense — Local AI Workspace for CSV, PDF & Notebooks
+# 🧠 DataSense
 
-An offline-first, browser-based sandbox for analyzing CSV files, PDF reports, and Jupyter Notebooks entirely on-device — no cloud, no API keys, no data uploads.
+### Local AI Workspace for CSV, PDF & Notebooks
 
----
+**An offline-first, browser-based sandbox for analyzing CSV files, PDF reports, and Jupyter Notebooks — entirely on-device. No cloud, no API keys, no data uploads.**
 
-## 📌 Problem Statement
+**Stack:** React 19 · Vite · Tailwind CSS · `@huggingface/transformers` (ONNX Runtime Web) · WebGPU/WASM
 
-Data science students and researchers frequently work with private, sensitive, or proprietary data — research drafts, financial datasets, confidential notebooks. Uploading these documents to cloud-based LLM providers (ChatGPT, Claude, Gemini) introduces significant data leakage risks, triggers compliance violations, and depends on continuous high-speed internet. This is a fundamental blocker for privacy-sensitive workflows.
-
-## 📌 Solution Overview
-
-**DataSense** is a fully browser-sandboxed workspace. It enables local analysis of CSV sheets, PDF document Q&A, and Jupyter Notebook cell explanation using client-side AI runtimes via WebAssembly and WebGPU. Raw data is kept strictly private on the user's machine — it never leaves the browser tab.
-
-Key capabilities:
-- **CSV Data Chat** — Natural language queries answered by a local NLQ engine (zero latency for math/stats) with AI fallback
-- **Redesigned EDA Copilot** — A premium exploratory data analysis dashboard featuring row/column KPIs, color-coded missing value health, descriptive stats, distribution charts, and a heatmapped correlation matrix.
-- **PDF Document Q&A** — Upload any PDF and ask questions; answers via local RAG pipeline
-- **Notebook Explainer** — Upload a `.ipynb` file and get AI explanations for every code cell
-- **100% Offline** — After first model load, works with no internet connection
-- **Session Persistence** — Chat history and analysis metadata are restored across browser sessions
+**[🚀 Live App](https://mauryasagar.github.io/DataSense/)**
 
 ---
 
-## 🧠 On-Device AI Usage & Technical Specifications
+## Overview
 
-As required by Section 6 of the OSDHack 2026 Resource Guide, here are the technical specifications of the on-device model stack:
+Data science students and researchers often work with private or sensitive data — research drafts, financial datasets, confidential notebooks. Uploading that data to cloud LLM providers risks leaks, breaks compliance, and needs constant internet.
 
-1. **Target Hardware**:
-   - Runs locally in modern web browsers using client CPU/GPU. Accelerates inference using **WebGPU** with automatic fallback to **WebAssembly (WASM SIMD)** if WebGPU is not supported.
-
-2. **AI Models & Framework**:
-   - **Framework**: `@huggingface/transformers` utilizing ONNX Runtime Web.
-   - **Unified Chat Model**: [onnx-community/SmolLM2-135M-Instruct](https://huggingface.co/onnx-community/SmolLM2-135M-Instruct) (Apache-2.0 License).
-
-3. **Model Footprint**:
-   - **Baseline Size**: ~270 MB (FP16/FP32).
-   - **Quantized Footprint**: **~35 MB** (ONNX format, 4-bit quantized weights `dtype: 'q4'`).
-   - **RAM Usage During Inference**: ~100 MB – 150 MB.
-   - Model files are cached securely in the browser's Cache Storage (Web Cache API) after the first download — no re-download on subsequent visits.
-
-4. **Performance Metrics (Average Desktop/Laptop CPU/GPU)**:
-   - **First-time model download**: **~5–10 seconds** depending on connection speed (only ~35 MB!).
-   - **WASM/WebGPU initialization / warm-up** (from cache, runs automatically on page load): **~2–5 seconds**. The app loads and initializes the model in the background immediately.
-   - **NLQ Engine (local math/stats queries)**: ~0 ms — computed instantly without the AI model.
-   - **CSV chat response time (AI-assisted)**: ~0.5s – 1.5s.
-   - **PDF document Q&A response time**: ~0.5s – 1s.
-   - **Generative text summarization latency**: ~1s – 2s.
-   - **Generation Rate**: ~15–30 tokens/sec (WebGPU, quantized model).
-
-5. **Customization & Pipeline**:
-   - **NLQ Engine**: A zero-latency local calculation engine (`answerLocally`) handles all mathematical and descriptive statistical queries (mean, sum, max, min, median, correlation, distribution, etc.) before falling back to the LLM. This covers ~80% of typical data questions with no AI wait time.
-   - **RAG Context Retrieval**: Custom paragraph-scoring heuristics (stopword-filtered keyword overlap) rank and select the top 3 PDF paragraphs matching user queries, providing a focused context of ≤ 1500 characters for the model.
-   - **EDA Engine**: Full on-device Exploratory Data Analysis — Pearson correlation matrix, IQR-based outlier detection, frequency distributions, missing value analysis — runs entirely in browser JavaScript.
+**DataSense** solves this by running everything client-side: CSV analysis, PDF Q&A, and notebook explanation, powered by a real language model running fully inside your browser tab via WebGPU/WASM. Nothing you upload ever leaves your machine.
 
 ---
 
-## 🛠️ Setup and Usage
+## Features
+
+| Feature | Description |
+|---|---|
+| 💬 **CSV Data Chat** | Natural language queries answered by a local NLQ engine (zero latency for math/stats), with AI fallback for anything else |
+| 📊 **EDA Copilot Dashboard** | Row/column KPIs, color-coded missing-value health, descriptive stats, distribution charts, and a heatmapped Pearson correlation matrix |
+| 📄 **PDF Document Q&A** | Upload any PDF and ask questions; answered via a local RAG pipeline |
+| 📓 **Notebook Explainer** | Upload a `.ipynb` file and get AI explanations for every code cell and its output |
+| 📤 **Exportable Reports** | Export your EDA dashboard and chat findings as a PDF report |
+| 📱 **Installable PWA** | Installable as a standalone app; model and assets are precached for offline use |
+| 🔌 **100% Offline After First Load** | Once the model and app shell are cached, everything works with no internet connection |
+| 💾 **Session Persistence** | File metadata, EDA results, and chat history are saved to IndexedDB and restored automatically |
+
+---
+
+## Tech Stack
+
+### Frontend
+- **React 19** + **Vite** — UI and build tooling
+- **Tailwind CSS** — utility-first styling
+- **react-router-dom** (`HashRouter`) — `/` is the landing page, `/app` is the workspace
+- **Lucide React** — icons
+
+### AI & Data Engines
+- **`@huggingface/transformers`** (ONNX Runtime Web) — runs `onnx-community/SmolLM2-135M-Instruct-ONNX` in a dedicated Web Worker (`ai.worker.js`) so inference never blocks the UI
+- **`papaparse`** — CSV parsing
+- **`pdfjs-dist`** — PDF parsing
+- Custom local engines: `nlqEngine.js` (natural-language-to-stats), `edaEngine.js` (exploratory data analysis), `contextBuilder.js` (RAG context assembly), `chartSelector.js`
+
+### Storage & Export
+- **`idb`** — IndexedDB wrapper for session persistence
+- **`vite-plugin-pwa`** — installable app + offline asset caching
+- **`jsPDF`** + **`html2canvas`** — PDF report export
+
+---
+
+## Project Structure
+
+```
+.
+├── src/
+│   ├── App.jsx                    # Root app + routing
+│   ├── main.jsx                   # React entry point
+│   ├── index.css                  # Global styles
+│   ├── context/
+│   │   └── ThemeContext.jsx
+│   ├── hooks/
+│   │   ├── useAIWorker.js         # Web Worker bridge for AI calls
+│   │   ├── useFileHandler.js      # CSV/PDF/notebook upload handling
+│   │   └── useSession.js          # IndexedDB session persistence
+│   ├── pages/
+│   │   ├── LandingPage.jsx
+│   │   └── AppPage.jsx            # Main workspace
+│   ├── parsers/
+│   │   ├── csvParser.js
+│   │   ├── pdfParser.js
+│   │   └── notebookParser.js
+│   ├── utils/
+│   │   ├── nlqEngine.js           # Local natural-language-to-stats engine
+│   │   ├── edaEngine.js           # Exploratory data analysis
+│   │   ├── contextBuilder.js      # RAG context assembly
+│   │   ├── chartSelector.js
+│   │   └── pdfExporter.js         # PDF report export
+│   ├── workers/
+│   │   └── ai.worker.js           # SmolLM2 inference (ONNX Runtime Web)
+│   └── components/landing/        # Landing page sections
+├── public/
+├── vite.config.js
+├── tailwind.config.js
+└── package.json
+```
+
+---
+
+## Getting Started
+
+### Try it instantly (no setup)
+Visit **[mauryasagar.github.io/DataSense](https://mauryasagar.github.io/DataSense/)** — Chrome recommended for WebGPU support.
 
 ### Prerequisites
-- Node.js (v18 or higher)
+- [Node.js 18+](https://nodejs.org)
 - npm
 
-### Installation & Run
+### 1. Install dependencies
+```bash
+npm install
+```
 
-1. Clone the repository and navigate to the project folder.
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-4. Open [`http://localhost:5173`](http://localhost:5173) in your browser (Chrome recommended for best WebGPU/WASM performance).
-5. Upload a CSV, PDF, or `.ipynb` file to begin analysis immediately.
-6. The AI model loads and warms up automatically in the background on page load. A progress bar will show the download status (~35 MB download on the first visit, near-instant initialization on subsequent visits).
+### 2. Run locally
+```bash
+npm run dev
+```
+Open [http://localhost:5173](http://localhost:5173). Upload a CSV, PDF, or `.ipynb` file to begin — the AI model downloads and warms up automatically in the background (~35 MB, one time).
 
 ### Testing Offline Mode
-After the model has loaded and cached:
-1. Open DevTools → Application → Cache Storage to confirm model files are cached.
-2. Toggle airplane mode / disable Wi-Fi.
-3. Refresh the page — the app loads and all features work offline.
+After the model has loaded and cached once:
+1. Open DevTools → Application → Cache Storage to confirm model files are cached
+2. Disable Wi-Fi / enable airplane mode
+3. Refresh — the app loads and all features still work
 
 ---
 
-## 🎥 Demo and Screenshots
+## Available Scripts
 
-- **Walkthrough Demo Video**: *(Add your 2-5 min demo video link here)*
-- **Screenshots**: *(Add your screenshots here)*
+| Command | Description |
+|---|---|
+| `npm run dev` | Start local dev server with hot reload |
+| `npm run build` | Production build |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run oxlint |
 
 ---
 
-## ⚖️ License
+## On-Device AI Specifications
 
-- **Source Code**: Licensed under the [MIT License](LICENSE) — see the [LICENSE](LICENSE) file for details.
-- **Model Weights**: The SmolLM2 model is licensed under the [Apache 2.0 License](https://huggingface.co/onnx-community/SmolLM2-135M-Instruct) by Hugging Face.
+As required by Section 6 of the OSDHack 2026 Resource Guide:
+
+**Model:** [`onnx-community/SmolLM2-135M-Instruct-ONNX`](https://huggingface.co/onnx-community/SmolLM2-135M-Instruct-ONNX), run via `@huggingface/transformers` (ONNX Runtime Web), with WebGPU acceleration and automatic WASM (SIMD) fallback.
+
+| Metric | Value |
+|---|---|
+| Baseline size (FP16/FP32) | ~270 MB |
+| Quantized footprint (4-bit, `dtype: q4`) | ~35 MB |
+| RAM usage during inference | ~100–150 MB |
+| First-time model download | ~5–10s |
+| Warm-up from cache | ~2–5s |
+| NLQ engine (local math/stats) | ~0ms — no AI model needed |
+| CSV chat response (AI-assisted) | ~0.5–1.5s |
+| PDF Q&A response | ~0.5–1s |
+| Summarization latency | ~1–2s |
+| Generation rate | ~15–30 tokens/sec (WebGPU, quantized) |
+
+**Pipeline notes:**
+- The **NLQ engine** (`answerLocally`) handles ~80% of typical data questions (mean, sum, max, min, median, correlation, distribution) instantly, without touching the AI model.
+- **RAG retrieval** uses stopword-filtered keyword overlap to rank and select the top 3 PDF paragraphs per query, capped at ~1500 characters of context.
+- The **EDA engine** computes Pearson correlation, IQR-based outlier detection, frequency distributions, and missing-value analysis entirely in browser JavaScript.
+
+---
+
+## License
+
+- **Source Code:** [MIT License](LICENSE)
+- **Model Weights:** SmolLM2 is licensed under [Apache 2.0](https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct) by Hugging Face. The app downloads the ONNX build [onnx-community/SmolLM2-135M-Instruct-ONNX](https://huggingface.co/onnx-community/SmolLM2-135M-Instruct-ONNX), which carries the same license.
