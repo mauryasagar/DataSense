@@ -29,7 +29,7 @@ export default defineConfig(({ command }) => ({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,mjs,wasm}'],
         // Ensure Wasm and larger worker scripts can be cached offline
-        maximumFileSizeToCacheInBytes: 15 * 1024 * 1024
+        maximumFileSizeToCacheInBytes: 30 * 1024 * 1024
       }
     })
   ],
