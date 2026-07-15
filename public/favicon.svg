@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <style>
+    path { stroke: #09090b; }
+    @media (prefers-color-scheme: dark) {
+      path { stroke: #fafafa; }
+    }
+  </style>
+  <path d="M12 2L2 7l10 5 10-5-10-5z" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M2 17l10 5 10-5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.4" />
+  <path d="M2 12l10 5 10-5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.75" />
+</svg>
