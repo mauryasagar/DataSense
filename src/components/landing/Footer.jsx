@@ -16,7 +16,8 @@ const resourceLinks = [
 ]
 
 const connectLinks = [
-  { label: 'GitHub ↗', href: REPO_URL, external: true },
+  { label: 'GitHub (Project) ↗', href: REPO_URL, external: true },
+  { label: '@mauryasagar ↗', href: 'https://github.com/mauryasagar', external: true },
 ]
 
 export default function Footer() {
@@ -28,11 +29,6 @@ export default function Footer() {
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }
-
-  const scrollToSection = (id) => {
-    const el = document.getElementById(id)
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
@@ -69,12 +65,19 @@ export default function Footer() {
             <ul className="space-y-3">
               {exploreLinks.map(link => (
                 <li key={link.label}>
-                  <button
-                    onClick={() => scrollToSection(link.sectionId)}
-                    className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150 bg-transparent border-none cursor-pointer p-0"
+                  <Link
+                    to={`/#${link.sectionId}`}
+                    onClick={(e) => {
+                      const el = document.getElementById(link.sectionId)
+                      if (el) {
+                        e.preventDefault()
+                        el.scrollIntoView({ behavior: 'smooth' })
+                      }
+                    }}
+                    className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150"
                   >
                     {link.label}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>
