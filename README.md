@@ -194,7 +194,7 @@ Open **http://localhost:5173** and upload a CSV, PDF, or `.ipynb` file to begin.
 
 ---
 
-## 🎥 Demo and Screenshots
+## Screenshots
  
 <img src="https://github.com/user-attachments/assets/692d0e4f-1f85-41b7-bb4d-04d3ee71a1c9" alt="Landing Page" width="500" />
 <p><em>Landing page</em></p>
