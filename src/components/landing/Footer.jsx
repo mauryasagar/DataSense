@@ -1,20 +1,22 @@
 import { Link } from 'react-router-dom'
 import { ArrowUp } from 'lucide-react'
 
+const REPO_URL = 'https://github.com/mauryasagar/DataSense'
+
 const exploreLinks = [
-  { label: 'How it works', href: '/#how-it-works' },
-  { label: 'Features', href: '/#features' },
-  { label: 'FAQ', href: '/#faq' },
+  { label: 'How it works', sectionId: 'how-it-works' },
+  { label: 'Features', sectionId: 'features' },
+  { label: 'FAQ', sectionId: 'faq' },
 ]
 
 const resourceLinks = [
-  { label: 'GitHub Repository ↗', href: 'https://github.com', external: true },
-  { label: 'README ↗', href: 'https://github.com', external: true },
+  { label: 'GitHub Repository ↗', href: REPO_URL, external: true },
+  { label: 'README ↗', href: `${REPO_URL}#readme`, external: true },
   { label: 'License (MIT) ↗', href: 'https://opensource.org/licenses/MIT', external: true },
 ]
 
 const connectLinks = [
-  { label: 'GitHub ↗', href: 'https://github.com', external: true },
+  { label: 'GitHub ↗', href: REPO_URL, external: true },
 ]
 
 export default function Footer() {
@@ -26,6 +28,11 @@ export default function Footer() {
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  }
+
+  const scrollToSection = (id) => {
+    const el = document.getElementById(id)
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
@@ -62,9 +69,12 @@ export default function Footer() {
             <ul className="space-y-3">
               {exploreLinks.map(link => (
                 <li key={link.label}>
-                  <Link to={link.href} className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150">
+                  <button
+                    onClick={() => scrollToSection(link.sectionId)}
+                    className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150 bg-transparent border-none cursor-pointer p-0"
+                  >
                     {link.label}
-                  </Link>
+                  </button>
                 </li>
               ))}
             </ul>
