@@ -15,10 +15,6 @@ const resourceLinks = [
   { label: 'License (MIT) ↗', href: 'https://opensource.org/licenses/MIT', external: true },
 ]
 
-const connectLinks = [
-  { label: 'GitHub (Project) ↗', href: REPO_URL, external: true },
-  { label: '@mauryasagar ↗', href: 'https://github.com/mauryasagar', external: true },
-]
 
 export default function Footer() {
   const scrollToTop = () => {
@@ -97,19 +93,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Connect */}
-          <div>
-            <h4 className="section-label mb-4">CONNECT</h4>
-            <ul className="space-y-3">
-              {connectLinks.map(link => (
-                <li key={link.label}>
-                  <a href={link.href} target="_blank" rel="noopener noreferrer" className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150">
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
 
         {/* Bottom bar */}
