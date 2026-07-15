@@ -30,9 +30,9 @@ export default function Footer() {
   return (
     <footer className="border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 flex-shrink-0 relative z-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          {/* Brand column */}
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+          {/* Brand column — spans 2 of 4 */}
+          <div className="md:col-span-2">
             <Link to="/" className="flex items-center gap-2.5 mb-4 group w-fit">
               <div className="w-8 h-8 flex items-center justify-center transition-all duration-300 group-hover:scale-105">
                 <svg className="w-6 h-6 text-zinc-900 dark:text-zinc-50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
