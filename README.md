@@ -9,7 +9,7 @@
 
 **Stack:** React 19 · Vite · Tailwind CSS · `@huggingface/transformers` (ONNX Runtime Web) · WebGPU/WASM
 
-**[🚀 Live App](https://mauryasagar.github.io/DataSense/)**
+### [Live App](https://mauryasagar.github.io/DataSense/)
 
 </div>
 
