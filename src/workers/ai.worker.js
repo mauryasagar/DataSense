@@ -49,11 +49,22 @@ self.addEventListener('message', async (event) => {
         if (!generatorPipeline) {
           generatorPipeline = await pipeline(
             'text-generation',
-            'HuggingFaceTB/SmolLM2-135M-Instruct',
+            'onnx-community/Qwen2.5-0.5B-Instruct',
             { 
-              progress_callback: makeProgressCallback('smollm'),
-              dtype: 'q4'
+              progress_callback: makeProgressCallback('qwen'),
+              dtype: 'q4',
+              device: 'webgpu'
             }
+          ).catch(() =>
+            // Fallback to WASM if WebGPU is not available
+            pipeline(
+              'text-generation',
+              'onnx-community/Qwen2.5-0.5B-Instruct',
+              {
+                progress_callback: makeProgressCallback('qwen'),
+                dtype: 'q4'
+              }
+            )
           );
         }
 
@@ -68,7 +79,11 @@ self.addEventListener('message', async (event) => {
         }
         
         // Construct Qwen instruction prompt
-        const prompt = `<|im_start|>system\nYou are a helpful data assistant. Answer the user's question accurately using only the context provided below. If you cannot find the answer in the context, say "I couldn't find a clear answer in the document."\nContext:\n${context}\n<|im_end|>\n<|im_start|>user\n${question}\n<|im_end|>\n<|im_start|>assistant\n`;
+        const messages = [
+          { role: 'system', content: `You are a helpful data assistant. Answer the user's question accurately using only the context provided below. If you cannot find the answer in the context, say "I couldn't find a clear answer in the document.".\nContext:\n${context}` },
+          { role: 'user', content: question }
+        ];
+        const prompt = generatorPipeline.tokenizer.apply_chat_template(messages, { tokenize: false, add_generation_prompt: true });
 
         const response = await generatorPipeline(prompt, {
           max_new_tokens: 150,
@@ -89,7 +104,11 @@ self.addEventListener('message', async (event) => {
         }
 
         // Construct summarization prompt
-        const prompt = `<|im_start|>system\nYou are a helpful data assistant. Write a clear, concise 2-3 sentence executive summary of the following data metrics. Focus on key details and keep it highly professional.\nText:\n${text}\n<|im_end|>\n<|im_start|>user\nSummarize this data.\n<|im_end|>\n<|im_start|>assistant\n`;
+        const messages = [
+          { role: 'system', content: `You are a helpful data assistant. Write a clear, concise 2-3 sentence executive summary of the following data metrics. Focus on key details and keep it highly professional.\nText:\n${text}` },
+          { role: 'user', content: 'Summarize this data.' }
+        ];
+        const prompt = generatorPipeline.tokenizer.apply_chat_template(messages, { tokenize: false, add_generation_prompt: true });
 
         const response = await generatorPipeline(prompt, {
           max_new_tokens: 150,
@@ -110,7 +129,11 @@ self.addEventListener('message', async (event) => {
         }
 
         // Construct explain cell prompt
-        const prompt = `<|im_start|>system\nYou are a data science teacher. Explain the following Jupyter notebook cell code and its output in 2-3 simple sentences.\n<|im_end|>\n<|im_start|>user\n${cellPrompt}\n<|im_end|>\n<|im_start|>assistant\n`;
+        const messages = [
+          { role: 'system', content: 'You are a data science teacher. Explain the following Jupyter notebook cell code and its output in 2-3 simple sentences.' },
+          { role: 'user', content: cellPrompt }
+        ];
+        const prompt = generatorPipeline.tokenizer.apply_chat_template(messages, { tokenize: false, add_generation_prompt: true });
 
         const response = await generatorPipeline(prompt, {
           max_new_tokens: 80,

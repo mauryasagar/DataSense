@@ -43,6 +43,9 @@ function getWorker() {
         emitState();
       }
     });
+    // Auto-start model loading immediately when worker is first created
+    globalWorker.postMessage({ type: 'LOAD_MODELS' });
+    globalState.status = 'loading';
   }
   return globalWorker;
 }
@@ -58,9 +61,7 @@ export function useAIWorker() {
     const listener = (state) => setWorkerState(state);
     globalListeners.add(listener);
 
-    // Initialize the worker instance early (so it's ready), but do NOT
-    // auto-load the model weights — WASM initialization takes 10-30s on
-    // normal hardware and blocks the whole app. Users load AI on demand.
+    // Initialize worker (model loading starts automatically in getWorker)
     getWorker();
 
     return () => {
