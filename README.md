@@ -194,6 +194,12 @@ Open **http://localhost:5173** and upload a CSV, PDF, or `.ipynb` file to begin.
 
 ---
 
+## 🎥 Demo and Screenshots
+ 
+- **Screenshots**: *(Add your screenshots here)*
+
+---
+
 ## ⚖️ License
 
 | | |
