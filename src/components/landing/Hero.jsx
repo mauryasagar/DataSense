@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Upload, Play, ShieldOff } from 'lucide-react'
+import { Upload, ShieldOff } from 'lucide-react'
 export default function Hero() {
   const navigate = useNavigate()
 
@@ -38,13 +38,7 @@ export default function Hero() {
             <Upload className="w-4 h-4" />
             Upload your CSV
           </button>
-          <button
-            onClick={() => navigate('/app')}
-            className="btn-ghost flex items-center gap-2.5 px-8 py-4 text-base"
-          >
-            <Play className="w-4 h-4" />
-            Watch demo
-          </button>
+
         </div>
 
         {/* Privacy proof */}
