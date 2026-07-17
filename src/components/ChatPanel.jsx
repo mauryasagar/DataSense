@@ -68,7 +68,7 @@ export default function ChatPanel({ activeTab, fileType, parsedData, ai, chatHis
             const next = [...prev];
             next[next.length - 1] = {
               question: q,
-              answer: "Hey! Ask me anything about your data — for example: \"what is the average Revenue?\", \"show the trend of Profit by Month\", or \"what are the top categories?\".",
+              answer: "I'm doing well, thanks! I'm here to help you explore this dataset — try asking things like \"what is the average Revenue?\", \"show the trend of Profit by Month\", or \"what are the top categories?\".",
               loading: false
             };
             return next;

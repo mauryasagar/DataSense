@@ -5,6 +5,19 @@ env.allowLocalModels = false;
 
 let generatorPipeline = null;
 
+function stripRepetition(text) {
+  const sentences = text.split(/(?<=[.!?])\s+/);
+  const seen = new Set();
+  const out = [];
+  for (const s of sentences) {
+    const key = s.trim().toLowerCase();
+    if (key && seen.has(key)) break; // stop at the first repeated sentence
+    seen.add(key);
+    out.push(s);
+  }
+  return out.join(' ').trim();
+}
+
 // Track loading progress
 const progressMap = {};
 let lastSentProgress = -1; // throttle: only send when integer % changes
@@ -91,10 +104,12 @@ self.addEventListener('message', async (event) => {
           max_new_tokens: 150,
           temperature: 0.2,
           do_sample: false,
+          repetition_penalty: 1.3,
+          no_repeat_ngram_size: 3,
           return_full_text: false
         });
 
-        const answer = response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1');
+        const answer = stripRepetition(response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1'));
         self.postMessage({ type: 'ANSWER_READY', payload: { answer, score: 1.0 }, requestId });
         break;
       }
@@ -116,10 +131,12 @@ self.addEventListener('message', async (event) => {
           max_new_tokens: 150,
           temperature: 0.3,
           do_sample: false,
+          repetition_penalty: 1.3,
+          no_repeat_ngram_size: 3,
           return_full_text: false
         });
 
-        const summary = response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1');
+        const summary = stripRepetition(response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1'));
         self.postMessage({ type: 'SUMMARY_READY', payload: { summary }, requestId });
         break;
       }
@@ -141,10 +158,12 @@ self.addEventListener('message', async (event) => {
           max_new_tokens: 80,
           temperature: 0.3,
           do_sample: false,
+          repetition_penalty: 1.3,
+          no_repeat_ngram_size: 3,
           return_full_text: false
         });
 
-        const answer = response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1');
+        const answer = stripRepetition(response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1'));
         self.postMessage({ type: 'EXPLAIN_CELL_READY', payload: { answer }, requestId });
         break;
       }

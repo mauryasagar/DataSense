@@ -6,10 +6,29 @@
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-const SMALL_TALK_PATTERNS = /^(hi|hello|hey|yo|sup|thanks|thank you|thx|ok|okay|cool|nice|great|bye|goodbye|good morning|good afternoon|good evening)[\s!.,]*$/i;
+const SMALL_TALK_EXACT = /^(hi|hello|hey|yo|sup|thanks|thank you|thx|ok|okay|cool|nice|great|bye|goodbye|good morning|good afternoon|good evening)[\s!.,]*$/i;
+
+const SMALL_TALK_PHRASES = [
+  "how are you",
+  "how's it going",
+  "how are things",
+  "what's up",
+  "whats up",
+  "who are you",
+  "what are you",
+  "what can you do",
+  "what do you do",
+  "tell me about yourself",
+  "nice to meet you",
+];
 
 export function isSmallTalk(question) {
-  return SMALL_TALK_PATTERNS.test(question.trim());
+  const q = question.trim().toLowerCase();
+  if (SMALL_TALK_EXACT.test(q)) return true;
+  // Only treat as small talk if it's a short phrase (avoid false-positives on
+  // longer, data-related questions that might happen to contain these words)
+  if (q.length <= 40 && SMALL_TALK_PHRASES.some(p => q.includes(p))) return true;
+  return false;
 }
 
 function fmt(n) {
