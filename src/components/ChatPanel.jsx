@@ -240,7 +240,7 @@ export default function ChatPanel({ activeTab, fileType, parsedData, ai, chatHis
             </div>
 
             <div className="flex justify-start">
-              <div className="w-fit max-w-[90%] md:max-w-[580px] p-3.5 sm:p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800/80 rounded-2xl rounded-tl-sm text-[14px] sm:text-[15px] leading-relaxed space-y-3 shadow-sm">
+              <div className="panel-card w-fit max-w-[90%] md:max-w-[580px] p-3.5 sm:p-4 rounded-tl-sm text-[14px] sm:text-[15px] leading-relaxed space-y-3">
                 {msg.loading ? (
                   <div className="flex items-center gap-2.5 text-zinc-400">
                     <RefreshCw className="w-4 h-4 animate-spin text-zinc-400" />
@@ -294,7 +294,7 @@ export default function ChatPanel({ activeTab, fileType, parsedData, ai, chatHis
             }}
             placeholder={fileType === 'pdf' ? "Ask anything about this document..." : "Ask anything about your data (e.g. what is the average revenue?)..."}
             rows={1}
-            className="flex-1 resize-none rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/40 px-5 py-3.5 text-[15px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition-all"
+            className="flex-1 resize-none rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/40 px-5 py-3.5 text-[15px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition-all"
           />
           <button
             onClick={() => handleSendQuestion()}

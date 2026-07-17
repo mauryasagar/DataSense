@@ -7,7 +7,7 @@ export default function DataTable({ activeTab, fileType, parsedData, file }) {
   if (!parsedData.rows) {
     return (
       <div className="flex-1 flex items-center justify-center bg-transparent p-6">
-        <div className="text-center p-8 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm max-w-md">
+        <div className="panel-card text-center p-8 max-w-md">
           <Table className="w-10 h-10 text-zinc-400 mx-auto mb-4" />
           <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-2">Row Data Unavailable</h3>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
@@ -49,7 +49,7 @@ export default function DataTable({ activeTab, fileType, parsedData, file }) {
                     return (
                       <td key={col} className="px-6 py-3.5 text-[13px] font-medium text-zinc-700 dark:text-zinc-400 truncate max-w-[220px] group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors">
                         {val === null || val === undefined ? (
-                          <span className="text-red-400/80 dark:text-red-500/50 italic text-[10px]">null</span>
+                          <span className="text-danger/80 italic text-[10px]">null</span>
                         ) : (
                           String(val)
                         )}

@@ -11,8 +11,8 @@ export default function SVGChart({ type, data }) {
   const GRID  = isDark ? '#27272a' : '#e4e4e7';
   const AXIS  = isDark ? '#3f3f46' : '#d4d4d8';
   const LABEL = isDark ? '#a1a1aa' : '#71717a';
-  const VAL   = isDark ? '#c4b5fd' : '#4f46e5';
-  const VAL_LINE = isDark ? '#6ee7b7' : '#059669';
+  const VAL   = isDark ? '#fb923c' : '#f97316';
+  const VAL_LINE = isDark ? '#fb923c' : '#f97316';
 
   const W = 480, H = 240;
   const PL = 48, PR = 14, PT = 18, PB = 52;
@@ -24,16 +24,16 @@ export default function SVGChart({ type, data }) {
     <>
       <defs>
         <linearGradient id="gb" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#818cf8" />
-          <stop offset="100%" stopColor="#6366f1" />
+          <stop offset="0%" stopColor="#fb923c" />
+          <stop offset="100%" stopColor="#f97316" />
         </linearGradient>
         <linearGradient id="gh" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#22d3ee" />
-          <stop offset="100%" stopColor="#06b6d4" />
+          <stop offset="0%" stopColor="#fb923c" />
+          <stop offset="100%" stopColor="#f97316" />
         </linearGradient>
         <linearGradient id="ga" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
-          <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+          <stop offset="0%" stopColor="#f97316" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
         </linearGradient>
       </defs>
       {yRatios.map((r, i) => {
@@ -51,7 +51,7 @@ export default function SVGChart({ type, data }) {
   );
 
   const Wrap = ({ title, badge, children }) => (
-    <div className="w-full bg-zinc-50/50 dark:bg-zinc-900/30 border border-zinc-100 dark:border-zinc-800/60 p-3.5 rounded-xl flex flex-col gap-1.5">
+    <div className="panel-card p-3.5 w-full flex flex-col gap-1.5">
       <div className="flex items-center justify-between">
         <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">{title}</span>
         {badge && <span className="text-[9px] font-semibold text-zinc-400 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800/50 px-2 py-0.5 rounded-full">{badge}</span>}
@@ -111,12 +111,12 @@ export default function SVGChart({ type, data }) {
       <Wrap title={data.datasets?.[0]?.label || 'Line Chart'}>
         <Grid yRatios={[0, 0.25, 0.5, 0.75, 1]} yFn={r => fmt(minV + r * range)} />
         <path d={area} fill="url(#ga)" />
-        <path d={line} fill="none" stroke="#10b981" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round" />
+        <path d={line} fill="none" stroke="#f97316" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round" />
         {pts.map((p, i) => {
           const show = pts.length <= 8 || i % Math.ceil(pts.length / 6) === 0;
           return (
             <g key={i}>
-              <circle cx={p.x} cy={p.y} r="3" fill="#34d399" stroke={isDark ? '#18181b' : '#ffffff'} strokeWidth="1.5" />
+              <circle cx={p.x} cy={p.y} r="3" fill="#f97316" stroke={isDark ? '#18181b' : '#ffffff'} strokeWidth="1.5" />
               <text x={p.x} y={p.y - 6} textAnchor="middle" fontSize="8.5" fontFamily="inherit" fill={VAL_LINE} className="font-bold">{fmt(p.v)}</text>
               {show && <text x={p.x} y={H - PB + 10} textAnchor="end"
                 transform={`rotate(-35, ${p.x}, ${H - PB + 10})`}
@@ -136,7 +136,7 @@ export default function SVGChart({ type, data }) {
     const labels = data.labels || [];
     const values = data.datasets?.[0]?.data || [];
     const total = values.reduce((a, b) => a + b, 0) || 1;
-    const PAL = ['#818cf8', '#34d399', '#fbbf24', '#f87171', '#60a5fa', '#a78bfa', '#f472b6', '#2dd4bf'];
+    const PAL = ['#f97316', '#ea580c', '#c2410c', '#fb923c', '#fdba74', '#fed7aa', '#ffedd5', '#7c2d12'];
     const cx = 110, cy = H / 2, R = 72, r = 36;
     let ang = -90;
     const slices = values.map((v, i) => {
@@ -217,7 +217,7 @@ export default function SVGChart({ type, data }) {
           <circle key={i}
             cx={PL + ((p.x - minX) / rX) * CW}
             cy={H - PB - ((p.y - minY) / rY) * CH}
-            r="3.5" fill="#818cf8" stroke={isDark ? '#18181b' : '#ffffff'} strokeWidth="1.0" opacity="0.85" />
+            r="3.5" fill="#f97316" stroke={isDark ? '#18181b' : '#ffffff'} strokeWidth="1.0" opacity="0.85" />
         ))}
         <text x={PL + CW / 2} y={H - 2} textAnchor="middle" fontSize="9" fontFamily="inherit" fill={AXIS} className="font-semibold">{data.xAxisLabel || 'X'}</text>
         <text x={10} y={PT + CH / 2} textAnchor="middle" transform={`rotate(-90, 10, ${PT + CH / 2})`} fontSize="9" fontFamily="inherit" fill={AXIS} className="font-semibold">{data.yAxisLabel || 'Y'}</text>

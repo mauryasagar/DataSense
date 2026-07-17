@@ -7,6 +7,15 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      colors: {
+        accent: {
+          DEFAULT: '#f97316',
+          light: '#fb923c',
+        },
+        success: { DEFAULT: '#10b981' },
+        warning: { DEFAULT: '#f59e0b' },
+        danger: { DEFAULT: '#ef4444' },
+      },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],

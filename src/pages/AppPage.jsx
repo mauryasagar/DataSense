@@ -10,8 +10,7 @@ import { useTheme } from '../context/ThemeContext'
 import { useAIWorker } from '../hooks/useAIWorker'
 import { useFileHandler } from '../hooks/useFileHandler'
 import { useSession } from '../hooks/useSession'
-import { determineChartType, extractChartData } from '../utils/chartSelector'
-import { answerLocally, buildRichAIContext } from '../utils/nlqEngine'
+
 import { buildNotebookContext } from '../utils/contextBuilder'
 import { exportSessionReport } from '../utils/pdfExporter'
 import Footer from '../components/landing/Footer'
@@ -47,7 +46,7 @@ function EmptyDropZone({ onFileSelect, fileError, onLoadSample, onScroll }) {
 
         {/* Badge */}
         <div className="badge mb-8 animate-fade-in">
-          <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-fast-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-fast-pulse" />
           100% On-Device AI · No Cloud · No API Keys
         </div>
 
@@ -76,7 +75,7 @@ function EmptyDropZone({ onFileSelect, fileError, onLoadSample, onScroll }) {
           onDragLeave={() => setDragging(false)}
           onDrop={handleDrop}
           onClick={() => inputRef.current.click()}
-          className={`w-full max-w-lg border-2 border-dashed rounded-3xl p-8 flex flex-col items-center gap-4 cursor-pointer transition-all duration-300 relative z-10 group shadow-lg
+          className={`w-full max-w-lg border-2 border-dashed rounded-2xl p-8 flex flex-col items-center gap-4 cursor-pointer transition-all duration-300 relative z-10 group shadow-lg
             ${dragging
               ? 'border-zinc-900 dark:border-white scale-[1.02] shadow-2xl bg-zinc-50 dark:bg-zinc-900/60'
               : 'border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900/40 hover:border-zinc-500 dark:hover:border-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900/60 hover:scale-[1.01] hover:shadow-2xl'
@@ -224,7 +223,7 @@ function ModelStatusBanner({ status, progress, error, loadModels, modelCached })
           {status === 'idle' && (
             <div className="flex items-center gap-2.5">
               {modelCached && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-success/10 text-success border border-success/20">
                   ✓ Cached
                 </span>
               )}
@@ -717,7 +716,7 @@ export default function AppPage() {
           <div className="flex items-center gap-3">
             {ai.status !== 'ready' && (
               <div className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-zinc-500 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-full animate-pulse">
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                <span className="w-1.5 h-1.5 rounded-full bg-accent" />
                 <span>AI Loading</span>
               </div>
             )}
@@ -778,8 +777,8 @@ export default function AppPage() {
                         <div key={col} className="group flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/80 dark:bg-zinc-900/50 border border-zinc-150 dark:border-zinc-800/60 shadow-sm hover:shadow hover:border-zinc-300 dark:hover:border-zinc-700 transition-all cursor-default">
                           <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-white truncate max-w-[130px]" title={col}>{col}</span>
                           <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-extrabold uppercase tracking-wider ${
-                            type === 'numeric' ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400 border border-amber-100/50 dark:border-amber-900/30' :
-                            type === 'date' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/20 dark:text-indigo-400 border border-indigo-100/50 dark:border-indigo-900/30' :
+                            type === 'numeric' ? 'bg-accent/10 text-accent border border-accent/20' :
+                            type === 'date' ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700' :
                             'bg-zinc-50 text-zinc-600 dark:bg-zinc-800/50 dark:text-zinc-400 border border-zinc-150 dark:border-zinc-700/50'
                           }`}>{type === 'numeric' ? 'NUM' : type === 'date' ? 'DATE' : 'TEXT'}</span>
                         </div>

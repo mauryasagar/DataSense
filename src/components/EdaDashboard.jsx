@@ -12,7 +12,7 @@ export default function EdaDashboard({ activeTab, fileType, parsedData, file, ai
         <div className="flex items-start justify-between gap-4 flex-wrap pb-2 border-b border-zinc-100 dark:border-zinc-800">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
               <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">EDA Copilot</span>
             </div>
             <h2 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight">Exploratory Data Analysis</h2>
@@ -34,19 +34,19 @@ export default function EdaDashboard({ activeTab, fileType, parsedData, file, ai
 
         {/* AI Summary Banner */}
         {pdfSummaryLoading && (
-          <div className="flex items-center gap-3 p-4 rounded-xl border border-indigo-150 dark:border-indigo-900/30 bg-indigo-50/30 dark:bg-indigo-950/20 animate-pulse">
-            <RefreshCw className="w-4 h-4 text-indigo-500 animate-spin flex-shrink-0" />
+          <div className="flex items-center gap-3 p-4 rounded-2xl border border-accent/20 bg-accent/5 dark:bg-accent/10 animate-pulse">
+            <RefreshCw className="w-4 h-4 text-accent animate-spin flex-shrink-0" />
             <div>
-              <p className="text-xs sm:text-sm font-bold text-indigo-800 dark:text-indigo-300">Synthesizing dataset insights...</p>
-              <p className="text-[11px] text-indigo-500/80 dark:text-indigo-400/60">Using local AI model to synthesize EDA tables</p>
+              <p className="text-xs sm:text-sm font-bold text-accent">Synthesizing dataset insights...</p>
+              <p className="text-[11px] text-accent/80">Using local AI model to synthesize EDA tables</p>
             </div>
           </div>
         )}
         {pdfSummary && (
-          <div className="p-5 rounded-2xl border border-indigo-100 dark:border-indigo-900/30 bg-gradient-to-br from-indigo-50/20 via-violet-50/20 to-transparent dark:from-indigo-950/10 dark:via-violet-950/5 dark:to-transparent shadow-sm space-y-2.5">
+          <div className="p-5 rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/5 via-transparent to-transparent shadow-sm space-y-2.5">
             <div className="flex items-center gap-2">
-              <Cpu className="w-4 h-4 text-indigo-500" />
-              <span className="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-wider">AI Executive Summary</span>
+              <Cpu className="w-4 h-4 text-accent" />
+              <span className="text-[10px] font-black text-accent uppercase tracking-wider">AI Executive Summary</span>
             </div>
             <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed font-medium whitespace-pre-wrap">{pdfSummary}</p>
           </div>
@@ -55,14 +55,14 @@ export default function EdaDashboard({ activeTab, fileType, parsedData, file, ai
         {/* Overview Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: 'Total Rows', value: parsedData.edaResult.overview.totalRows.toLocaleString(), color: 'from-blue-500 to-indigo-500', icon: '📋' },
-            { label: 'Total Columns', value: parsedData.edaResult.overview.totalCols, color: 'from-violet-500 to-purple-600', icon: '🗂️' },
-            { label: 'Numeric Features', value: parsedData.edaResult.overview.numericCount, color: 'from-amber-500 to-orange-500', icon: '🔢' },
-            { label: 'Categorical Features', value: parsedData.edaResult.overview.categoricalCount, color: 'from-emerald-500 to-teal-500', icon: '🏷️' }
+            { label: 'Total Rows', value: parsedData.edaResult.overview.totalRows.toLocaleString(), icon: '📋' },
+            { label: 'Total Columns', value: parsedData.edaResult.overview.totalCols, icon: '🗂️' },
+            { label: 'Numeric Features', value: parsedData.edaResult.overview.numericCount, icon: '🔢' },
+            { label: 'Categorical Features', value: parsedData.edaResult.overview.categoricalCount, icon: '🏷️' }
           ].map((kpi, idx) => (
-            <div key={idx} className="p-4 rounded-2xl border border-zinc-150 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm cursor-default hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
-              <span className="text-lg">{kpi.icon}</span>
-              <p className={`text-xl sm:text-2xl font-black bg-gradient-to-r ${kpi.color} bg-clip-text text-transparent mt-2`}>{kpi.value}</p>
+            <div key={idx} className="panel-card p-4 cursor-default hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+              <span className="text-lg text-accent">{kpi.icon}</span>
+              <p className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-zinc-100 mt-2">{kpi.value}</p>
               <p className="text-[10px] sm:text-xs font-semibold text-zinc-400 dark:text-zinc-500 mt-0.5">{kpi.label}</p>
             </div>
           ))}
@@ -72,7 +72,7 @@ export default function EdaDashboard({ activeTab, fileType, parsedData, file, ai
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
           {/* Missing Values Card */}
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-150 dark:border-zinc-800 rounded-2xl shadow-sm flex flex-col overflow-hidden">
+          <div className="panel-card flex flex-col overflow-hidden">
             <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/20 dark:bg-zinc-950/20">
               <h4 className="text-xs sm:text-sm font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">Missing Values Analysis</h4>
               <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500">Total Missing: {parsedData.edaResult.overview.totalMissing}</span>
@@ -84,12 +84,12 @@ export default function EdaDashboard({ activeTab, fileType, parsedData, file, ai
                     <div className="flex items-center gap-1.5 mb-1">
                       <span className="text-xs font-bold text-zinc-700 dark:text-zinc-200 truncate">{col}</span>
                       {meta.flag && (
-                        <span className="text-[8px] font-extrabold px-1 rounded-full bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400">HIGH</span>
+                        <span className="text-[8px] font-extrabold px-1.5 py-0.5 rounded-full bg-danger/10 text-danger">HIGH</span>
                       )}
                     </div>
                     <div className="w-full bg-zinc-100 dark:bg-zinc-850 h-1 rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full ${meta.percentage > 20 ? 'bg-red-500' : meta.percentage > 5 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                        className={`h-full rounded-full ${meta.percentage > 20 ? 'bg-danger' : meta.percentage > 5 ? 'bg-warning' : 'bg-success'}`}
                         style={{ width: `${Math.min(meta.percentage, 100)}%` }}
                       />
                     </div>
@@ -104,7 +104,7 @@ export default function EdaDashboard({ activeTab, fileType, parsedData, file, ai
           </div>
 
           {/* Numeric Statistics Card */}
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-150 dark:border-zinc-800 rounded-2xl shadow-sm flex flex-col overflow-hidden">
+          <div className="panel-card flex flex-col overflow-hidden">
             <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/20 dark:bg-zinc-950/20">
               <h4 className="text-xs sm:text-sm font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">Descriptive Statistics</h4>
             </div>
@@ -116,7 +116,7 @@ export default function EdaDashboard({ activeTab, fileType, parsedData, file, ai
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200 truncate">{col}</span>
                     {stats.outlierCount > 0 && (
-                      <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-orange-50 dark:bg-orange-950 text-orange-600 dark:text-orange-400">
+                      <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-warning/10 text-warning">
                         {stats.outlierCount} outliers
                       </span>
                     )}
@@ -142,7 +142,7 @@ export default function EdaDashboard({ activeTab, fileType, parsedData, file, ai
         </div>
 
         {/* Categorical Breakdown */}
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-150 dark:border-zinc-800 rounded-2xl shadow-sm overflow-hidden">
+        <div className="panel-card overflow-hidden">
           <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/20 dark:bg-zinc-950/20">
             <h4 className="text-xs sm:text-sm font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">Categorical Distributions</h4>
           </div>
@@ -152,7 +152,7 @@ export default function EdaDashboard({ activeTab, fileType, parsedData, file, ai
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[360px] overflow-y-auto pr-1">
                 {Object.entries(parsedData.edaResult.categoricalStats).map(([col, stats]) => {
-                  const barColors = ['bg-indigo-400', 'bg-blue-400', 'bg-cyan-400', 'bg-teal-400', 'bg-emerald-400'];
+                  const barColors = ['bg-accent', 'bg-accent/80', 'bg-accent/60', 'bg-accent/40', 'bg-accent/20'];
                   return (
                     <div key={col} className="p-4 bg-zinc-50/40 dark:bg-zinc-900/20 border border-zinc-100 dark:border-zinc-850 rounded-xl space-y-2.5">
                       <div className="flex justify-between items-center gap-2">
@@ -184,7 +184,7 @@ export default function EdaDashboard({ activeTab, fileType, parsedData, file, ai
         </div>
 
         {/* Correlation Matrix */}
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-150 dark:border-zinc-800 rounded-2xl shadow-sm overflow-hidden">
+        <div className="panel-card overflow-hidden">
           <div className="px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/20 dark:bg-zinc-950/20">
             <h4 className="text-xs sm:text-sm font-black text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">Correlation Heatmap</h4>
           </div>
@@ -214,16 +214,16 @@ export default function EdaDashboard({ activeTab, fileType, parsedData, file, ai
                             const isSelf = rowCol === col;
                             const absVal = Math.abs(r);
                             const bgClass = isSelf ? 'bg-zinc-150 dark:bg-zinc-800'
-                              : r > 0.6 ? 'bg-emerald-100 dark:bg-emerald-950/40'
-                              : r < -0.6 ? 'bg-red-100 dark:bg-red-900/40'
-                              : absVal > 0.3 ? 'bg-amber-50 dark:bg-amber-900/20'
+                              : r > 0.6 ? 'bg-success/20'
+                              : r < -0.6 ? 'bg-danger/20'
+                              : absVal > 0.3 ? 'bg-warning/20'
                               : 'bg-zinc-50 dark:bg-zinc-900/30';
                             const textClass = isSelf ? 'text-zinc-400 dark:text-zinc-500'
-                              : r > 0.6 ? 'text-emerald-700 dark:text-emerald-300 font-extrabold'
-                              : r < -0.6 ? 'text-red-600 dark:text-red-400 font-extrabold'
+                              : r > 0.6 ? 'text-success font-extrabold'
+                              : r < -0.6 ? 'text-danger font-extrabold'
                               : 'text-zinc-650 dark:text-zinc-400';
                             return (
-                              <td key={col} className={`px-2 py-1.5 rounded-md ${bgClass} ${textClass} text-[11px] font-bold`} title={`${rowCol} × ${col}: ${r.toFixed(4)}`}>
+                              <td key={col} className={`px-2 py-1.5 rounded-xl ${bgClass} ${textClass} text-[11px] font-bold`} title={`${rowCol} × ${col}: ${r.toFixed(4)}`}>
                                 {r.toFixed(2)}
                               </td>
                             );
@@ -237,9 +237,9 @@ export default function EdaDashboard({ activeTab, fileType, parsedData, file, ai
                 {/* Legend */}
                 <div className="flex items-center gap-4 flex-wrap pt-2 text-[10px] text-zinc-400">
                   {[
-                    { label: 'Positive (r > 0.6)', bg: 'bg-emerald-100 dark:bg-emerald-950/40 border border-emerald-200/50' },
-                    { label: 'Negative (r < -0.6)', bg: 'bg-red-100 dark:bg-red-900/40 border border-red-200/50' },
-                    { label: 'Moderate (|r| > 0.3)', bg: 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200/50' }
+                    { label: 'Positive (r > 0.6)', bg: 'bg-success/20 border border-success/30' },
+                    { label: 'Negative (r < -0.6)', bg: 'bg-danger/20 border border-danger/30' },
+                    { label: 'Moderate (|r| > 0.3)', bg: 'bg-warning/20 border border-warning/30' }
                   ].map((item, idx) => (
                     <div key={idx} className="flex items-center gap-1">
                       <span className={`w-2.5 h-2.5 rounded-sm ${item.bg}`} />

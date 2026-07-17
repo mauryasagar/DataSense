@@ -26,8 +26,8 @@ export default function NotebookView({ activeTab, fileType, parsedData, ai, note
                   </>
                 ) : notebookExplanations[idx] ? (
                   <>
-                    <Check className="w-3 h-3 text-emerald-550" />
-                    <span className="text-emerald-600 dark:text-emerald-450 font-extrabold">Explained</span>
+                    <Check className="w-3 h-3 text-success" />
+                    <span className="text-success font-extrabold">Explained</span>
                   </>
                 ) : (
                   <>
