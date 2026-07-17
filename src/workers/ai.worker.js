@@ -52,7 +52,7 @@ self.addEventListener('message', async (event) => {
             'onnx-community/SmolLM2-135M-Instruct-ONNX',
             { 
               progress_callback: makeProgressCallback('smollm'),
-              dtype: 'q4',
+              dtype: 'q4f16',
               device: 'webgpu'
             }
           ).catch(() =>
