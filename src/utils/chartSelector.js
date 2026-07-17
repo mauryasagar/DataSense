@@ -21,8 +21,13 @@ export function determineChartType(question) {
     return "scatter";
   }
 
-  // Default is bar chart
-  return "bar";
+  // Explicit bar-chart intent keywords
+  if (q.includes("bar chart") || q.includes("compare") || q.includes("breakdown") || q.includes("by category") || q.includes("top") || q.includes("rank")) {
+    return "bar";
+  }
+
+  // No clear chart intent detected
+  return null;
 }
 
 /**
@@ -34,6 +39,7 @@ export function determineChartType(question) {
  */
 export function extractChartData(chartType, eda, columns, rows) {
   // Let's find columns that can fit the chart type
+  if (!chartType) return null;
   const numericCols = columns.filter(col => eda.numericStats[col] !== undefined);
   const categoricalCols = columns.filter(col => eda.categoricalStats[col] !== undefined);
 

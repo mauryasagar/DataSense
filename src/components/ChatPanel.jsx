@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { MessageSquare, RefreshCw, Send } from 'lucide-react';
 import SVGChart from './SVGChart';
 import { determineChartType, extractChartData } from '../utils/chartSelector';
-import { answerLocally, buildRichAIContext } from '../utils/nlqEngine';
+import { answerLocally, buildRichAIContext, isSmallTalk } from '../utils/nlqEngine';
 
 function retrieveRelevantContext(question, paragraphs) {
   const stopWords = new Set(['what', 'is', 'the', 'a', 'an', 'of', 'and', 'or', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'about', 'how', 'why', 'where', 'when', 'who', 'which', 'do', 'does', 'did', 'are', 'was', 'were', 'has', 'have', 'had', 'can', 'could', 'should', 'would']);
@@ -63,6 +63,19 @@ export default function ChatPanel({ activeTab, fileType, parsedData, ai, chatHis
 
     try {
       if (fileType === 'csv') {
+        if (isSmallTalk(q)) {
+          setChatHistory(prev => {
+            const next = [...prev];
+            next[next.length - 1] = {
+              question: q,
+              answer: "Hey! Ask me anything about your data — for example: \"what is the average Revenue?\", \"show the trend of Profit by Month\", or \"what are the top categories?\".",
+              loading: false
+            };
+            return next;
+          });
+          return;
+        }
+
         const chartType = parsedData.rows ? determineChartType(q) : null;
         const chartData = parsedData.rows ? extractChartData(chartType, parsedData.edaResult, parsedData.columns, parsedData.rows) : null;
 

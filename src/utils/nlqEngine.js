@@ -6,6 +6,12 @@
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+const SMALL_TALK_PATTERNS = /^(hi|hello|hey|yo|sup|thanks|thank you|thx|ok|okay|cool|nice|great|bye|goodbye|good morning|good afternoon|good evening)[\s!.,]*$/i;
+
+export function isSmallTalk(question) {
+  return SMALL_TALK_PATTERNS.test(question.trim());
+}
+
 function fmt(n) {
   if (typeof n !== 'number' || isNaN(n)) return String(n);
   if (Number.isInteger(n)) return n.toLocaleString();
