@@ -112,7 +112,14 @@ File metadata, EDA results, and chat history are saved to IndexedDB and restored
 │   │   └── useSession.js          # IndexedDB session persistence
 │   ├── pages/
 │   │   ├── LandingPage.jsx
-│   │   └── AppPage.jsx            # Main workspace
+│   │   └── AppPage.jsx            # Main workspace shell — layout, tab state, session wiring
+│   ├── components/
+│   │   ├── ChatPanel.jsx          # Chat UI + local NLQ / AI fallback logic
+│   │   ├── DataTable.jsx          # CSV data explorer tab
+│   │   ├── EdaDashboard.jsx       # EDA Copilot dashboard tab
+│   │   ├── NotebookView.jsx       # Notebook explainer tab
+│   │   ├── SVGChart.jsx           # Inline chart rendering used in chat
+│   │   └── landing/               # Landing page sections
 │   ├── parsers/
 │   │   ├── csvParser.js
 │   │   ├── pdfParser.js
@@ -125,7 +132,7 @@ File metadata, EDA results, and chat history are saved to IndexedDB and restored
 │   │   └── pdfExporter.js         # PDF report export
 │   ├── workers/
 │   │   └── ai.worker.js           # SmolLM2 inference (ONNX Runtime Web)
-│   └── components/landing/        # Landing page sections
+│   └── index.css
 ├── public/
 ├── vite.config.js
 ├── tailwind.config.js
