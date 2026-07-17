@@ -79,10 +79,13 @@ export function useAIWorker() {
   const executeTask = (type, payload) => {
     return new Promise((resolve, reject) => {
       const worker = getWorker();
+      const requestId = `${type}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
       // Create a temporary message listener for this specific request
       const handleResponse = (event) => {
-        const { type: responseType, payload: responsePayload } = event.data;
+        const { type: responseType, payload: responsePayload, requestId: responseRequestId } = event.data;
+
+        if (responseRequestId !== requestId) return;
 
         if (responseType === 'ERROR') {
           worker.removeEventListener('message', handleResponse);
@@ -98,7 +101,7 @@ export function useAIWorker() {
       };
 
       worker.addEventListener('message', handleResponse);
-      worker.postMessage({ type, payload });
+      worker.postMessage({ type, payload, requestId });
     });
   };
 

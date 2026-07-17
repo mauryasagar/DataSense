@@ -10,7 +10,7 @@ const progressMap = {};
 let lastSentProgress = -1; // throttle: only send when integer % changes
 
 self.addEventListener('message', async (event) => {
-  const { type, payload } = event.data;
+  const { type, payload, requestId } = event.data;
 
   try {
     switch (type) {
@@ -49,23 +49,25 @@ self.addEventListener('message', async (event) => {
         if (!generatorPipeline) {
           generatorPipeline = await pipeline(
             'text-generation',
-            'onnx-community/SmolLM2-135M-Instruct-ONNX',
+            'HuggingFaceTB/SmolLM2-135M-Instruct',
             { 
               progress_callback: makeProgressCallback('smollm'),
               dtype: 'q4f16',
               device: 'webgpu'
             }
-          ).catch(() =>
+          ).catch(() => {
+            Object.keys(progressMap).forEach(key => delete progressMap[key]);
+            lastSentProgress = -1;
             // Fallback to WASM if WebGPU is not available
-            pipeline(
+            return pipeline(
               'text-generation',
-              'onnx-community/SmolLM2-135M-Instruct-ONNX',
+              'HuggingFaceTB/SmolLM2-135M-Instruct',
               {
                 progress_callback: makeProgressCallback('smollm'),
                 dtype: 'q4'
               }
-            )
-          );
+            );
+          });
         }
 
         self.postMessage({ type: 'MODELS_READY' });
@@ -92,8 +94,8 @@ self.addEventListener('message', async (event) => {
           return_full_text: false
         });
 
-        const answer = response[0].generated_text.trim().replace(/\\([.\-\)])/g, '$1');
-        self.postMessage({ type: 'ANSWER_READY', payload: { answer, score: 1.0 } });
+        const answer = response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1');
+        self.postMessage({ type: 'ANSWER_READY', payload: { answer, score: 1.0 }, requestId });
         break;
       }
 
@@ -117,8 +119,8 @@ self.addEventListener('message', async (event) => {
           return_full_text: false
         });
 
-        const summary = response[0].generated_text.trim().replace(/\\([.\-\)])/g, '$1');
-        self.postMessage({ type: 'SUMMARY_READY', payload: { summary } });
+        const summary = response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1');
+        self.postMessage({ type: 'SUMMARY_READY', payload: { summary }, requestId });
         break;
       }
 
@@ -142,8 +144,8 @@ self.addEventListener('message', async (event) => {
           return_full_text: false
         });
 
-        const answer = response[0].generated_text.trim().replace(/\\([.\-\)])/g, '$1');
-        self.postMessage({ type: 'EXPLAIN_CELL_READY', payload: { answer } });
+        const answer = response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1');
+        self.postMessage({ type: 'EXPLAIN_CELL_READY', payload: { answer }, requestId });
         break;
       }
 
@@ -151,6 +153,6 @@ self.addEventListener('message', async (event) => {
         console.warn(`AI Worker received unhandled action: ${type}`);
     }
   } catch (error) {
-    self.postMessage({ type: 'ERROR', payload: error.message || error.toString() });
+    self.postMessage({ type: 'ERROR', payload: error.message || error.toString(), requestId });
   }
 });

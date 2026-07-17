@@ -24,7 +24,7 @@ function findMentionedColumns(q, columns) {
     // Direct substring match or word-level match
     if (lq.includes(lc)) return true;
     // Match individual words of multi-word column names
-    const words = lc.split(/[\s_\-]+/);
+    const words = lc.split(/[\s_-]+/);
     return words.length > 1 && words.every(w => w.length > 2 && lq.includes(w));
   });
 }
@@ -76,7 +76,7 @@ function pickCategoricalColumn(mentionedCols, allCatCols, edaResult) {
  * @returns {{ answer: string, confidence: 'high'|'medium'|'low' } | null}
  */
 export function answerLocally(question, parsedData) {
-  const { rows, columns, columnTypes, edaResult } = parsedData;
+  const { rows, columns, edaResult } = parsedData;
   if (!rows || !columns || !edaResult) return null;
 
   const q = normalize(question);

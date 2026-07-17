@@ -1,7 +1,9 @@
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Configure pdfjs worker — use Vite's BASE_URL so it resolves on both localhost and GitHub Pages
-pdfjsLib.GlobalWorkerOptions.workerSrc = `${import.meta.env.BASE_URL}pdf.worker.min.mjs`;
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+
+// Configure pdfjs worker — use Vite's URL import so it resolves correctly
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 /**
  * Extracts text from a PDF page while preserving line breaks and paragraph spacing.

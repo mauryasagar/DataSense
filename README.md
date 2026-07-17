@@ -172,7 +172,7 @@ Open **http://localhost:5173** and upload a CSV, PDF, or `.ipynb` file to begin.
 
 <sub>As required by Section 6 of the OSDHack 2026 Resource Guide</sub>
 
-**Model:** [`onnx-community/SmolLM2-135M-Instruct-ONNX`](https://huggingface.co/onnx-community/SmolLM2-135M-Instruct-ONNX) — run via `@huggingface/transformers` (ONNX Runtime Web), WebGPU-accelerated with automatic WASM (SIMD) fallback.
+**Model:** [`HuggingFaceTB/SmolLM2-135M-Instruct`](https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct) — run via `@huggingface/transformers` (ONNX Runtime Web), WebGPU-accelerated with automatic WASM (SIMD) fallback.
 
 | Metric | Value |
 |---|---|
@@ -212,7 +212,7 @@ Open **http://localhost:5173** and upload a CSV, PDF, or `.ipynb` file to begin.
 | | |
 |---|---|
 | **Source Code** | [MIT License](LICENSE) |
-| **Model Weights** | [Apache 2.0](https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct) by Hugging Face — the app downloads the ONNX build [`onnx-community/SmolLM2-135M-Instruct-ONNX`](https://huggingface.co/onnx-community/SmolLM2-135M-Instruct-ONNX), same license |
+| **Model Weights** | [Apache 2.0](https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct) by Hugging Face — the app downloads the ONNX build [`HuggingFaceTB/SmolLM2-135M-Instruct`](https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct), same license |
 
 ---
 
