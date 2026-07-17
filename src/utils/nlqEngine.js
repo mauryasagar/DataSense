@@ -327,7 +327,7 @@ export function answerLocally(question, parsedData) {
           groupMap[key].push(val);
         }
       });
-      const entries = Object.entries(groupMap).slice(0, 8);
+      const entries = Object.entries(groupMap).slice(0, 24);
       const list = entries.map(([k, vals]) => {
         const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
         return `**${k}**: ${fmt(avg)}`;

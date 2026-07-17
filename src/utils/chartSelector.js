@@ -56,7 +56,7 @@ export function extractChartData(chartType, eda, columns, rows) {
         dataMap[key].push(val);
       });
 
-      const labels = Object.keys(dataMap).slice(0, 15); // limit to 15 points for readable chart
+      const labels = Object.keys(dataMap).slice(0, 50); // limit to 50 points for readable chart
       const values = labels.map(l => {
         const vals = dataMap[l];
         return vals.reduce((a, b) => a + b, 0) / vals.length; // average
@@ -167,7 +167,7 @@ export function extractChartData(chartType, eda, columns, rows) {
           }
         });
 
-        const labels = Object.keys(groupMap).slice(0, 10); // limit to top 10 categories
+        const labels = Object.keys(groupMap).slice(0, 30); // limit to top 30 categories
         const data = labels.map(l => {
           const vals = groupMap[l];
           return vals.reduce((a, b) => a + b, 0) / vals.length;
