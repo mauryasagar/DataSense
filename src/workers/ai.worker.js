@@ -18,6 +18,17 @@ function stripRepetition(text) {
   return out.join(' ').trim();
 }
 
+function trimToCompleteSentence(text) {
+  const trimmed = text.trim();
+  if (/[.!?]["')\]]?$/.test(trimmed)) return trimmed; // already ends cleanly
+  // Find the last sentence-ending punctuation and cut there
+  const lastEnd = Math.max(trimmed.lastIndexOf('.'), trimmed.lastIndexOf('!'), trimmed.lastIndexOf('?'));
+  if (lastEnd > 20) { // keep a reasonable minimum length, avoid over-truncating short answers
+    return trimmed.slice(0, lastEnd + 1);
+  }
+  return trimmed; // no good cut point found, leave as-is rather than mangling it further
+}
+
 // Track loading progress
 const progressMap = {};
 let lastSentProgress = -1; // throttle: only send when integer % changes
@@ -93,15 +104,18 @@ self.addEventListener('message', async (event) => {
           throw new Error("AI Chat model is not loaded yet.");
         }
         
+        const wantsDetail = /\b(detailed|breakdown|elaborate|explain|list|summariz|in depth|comprehensive)\b/i.test(question);
+        const tokenBudget = wantsDetail ? 220 : 150;
+
         // Construct Qwen instruction prompt
         const messages = [
-          { role: 'system', content: `You are a helpful data assistant. Answer the user's question accurately using only the context provided below. If you cannot find the answer in the context, say "I couldn't find a clear answer in the document.".\nContext:\n${context}` },
+          { role: 'system', content: `You are a helpful data assistant. Answer the user's question accurately and concisely using only the context provided below, in no more than 5 complete sentences. Always finish your final sentence — never trail off. If you cannot find the answer in the context, say "I couldn't find a clear answer in the document.".\nContext:\n${context}` },
           { role: 'user', content: question }
         ];
         const prompt = generatorPipeline.tokenizer.apply_chat_template(messages, { tokenize: false, add_generation_prompt: true });
 
         const response = await generatorPipeline(prompt, {
-          max_new_tokens: 150,
+          max_new_tokens: tokenBudget,
           temperature: 0.2,
           do_sample: false,
           repetition_penalty: 1.3,
@@ -109,7 +123,7 @@ self.addEventListener('message', async (event) => {
           return_full_text: false
         });
 
-        const answer = stripRepetition(response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1'));
+        const answer = trimToCompleteSentence(stripRepetition(response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1')));
         self.postMessage({ type: 'ANSWER_READY', payload: { answer, score: 1.0 }, requestId });
         break;
       }
@@ -136,7 +150,7 @@ self.addEventListener('message', async (event) => {
           return_full_text: false
         });
 
-        const summary = stripRepetition(response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1'));
+        const summary = trimToCompleteSentence(stripRepetition(response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1')));
         self.postMessage({ type: 'SUMMARY_READY', payload: { summary }, requestId });
         break;
       }
@@ -163,7 +177,7 @@ self.addEventListener('message', async (event) => {
           return_full_text: false
         });
 
-        const answer = stripRepetition(response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1'));
+        const answer = trimToCompleteSentence(stripRepetition(response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1')));
         self.postMessage({ type: 'EXPLAIN_CELL_READY', payload: { answer }, requestId });
         break;
       }
