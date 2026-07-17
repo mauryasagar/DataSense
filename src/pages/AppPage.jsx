@@ -388,13 +388,6 @@ export default function AppPage() {
     }
   }, [fileType, parsedData])
 
-  
-
-  // Scroll chat to bottom on new messages
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [chatHistory])
-
   // Listen for the custom cached event from Hook
   useEffect(() => {
     const handleCached = () => {
