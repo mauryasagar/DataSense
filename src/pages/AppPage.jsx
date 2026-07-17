@@ -288,13 +288,11 @@ export default function AppPage() {
 
   // Local State
   const [activeTab, setActiveTab] = useState('chat')
-  const [chatInput, setChatInput] = useState('')
   const [chatHistory, setChatHistory] = useState([])
   const [suggestedQuestions, setSuggestedQuestions] = useState([])
   
     
   // Extra features states for CSV & Notebooks
-  const [csvSummary, setCsvSummary] = useState('')
   const [notebookExplanations, setNotebookExplanations] = useState({}) // cellIndex -> explanation text
   const [explainingCellIdx, setExplainingCellIdx] = useState(null)
   const [explainAllProgress, setExplainAllProgress] = useState(null) // { current, total } or null
@@ -308,7 +306,6 @@ export default function AppPage() {
   const [scrolled, setScrolled] = useState(false)
 
   // DOM Refs for report capturing
-  const chatEndRef = useRef(null)
   const messageRefs = useRef([])
 
   // Restore session from IndexedDB if available
@@ -930,7 +927,7 @@ export default function AppPage() {
             </div>
             
             {/* CSV & PDF: Data Chat Pane */}
-            <ChatPanel activeTab={activeTab} fileType={fileType} parsedData={parsedData} ai={ai} chatHistory={chatHistory} setChatHistory={setChatHistory} suggestedQuestions={suggestedQuestions} />
+            <ChatPanel activeTab={activeTab} fileType={fileType} parsedData={parsedData} ai={ai} chatHistory={chatHistory} setChatHistory={setChatHistory} suggestedQuestions={suggestedQuestions} messageRefs={messageRefs} />
 
             {/* CSV: Data Explorer Tab */}
             <DataTable activeTab={activeTab} fileType={fileType} parsedData={parsedData} file={file} />

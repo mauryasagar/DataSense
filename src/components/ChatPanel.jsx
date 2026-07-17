@@ -44,10 +44,9 @@ function retrieveRelevantContext(question, paragraphs) {
   return selected.map(item => item.p).join('\n\n');
 }
 
-export default function ChatPanel({ activeTab, fileType, parsedData, ai, chatHistory, setChatHistory, suggestedQuestions }) {
+export default function ChatPanel({ activeTab, fileType, parsedData, ai, chatHistory, setChatHistory, suggestedQuestions, messageRefs }) {
   const [chatInput, setChatInput] = useState('');
   const chatEndRef = useRef(null);
-  const messageRefs = useRef([]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
