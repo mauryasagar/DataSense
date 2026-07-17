@@ -5,28 +5,36 @@
 export function determineChartType(question) {
   const q = question.toLowerCase();
 
+  // 1. Explicit chart-type names — highest priority, unambiguous
+  if (q.includes("line chart") || q.includes("line graph") || q.includes("line plot")) return "line";
+  if (q.includes("histogram")) return "histogram";
+  if (q.includes("pie chart") || q.includes("pie graph")) return "pie";
+  if (q.includes("scatter plot") || q.includes("scatterplot") || q.includes("scatter chart") || q.includes("scatter graph")) return "scatter";
+  if (q.includes("bar chart") || q.includes("bar graph")) return "bar";
+
+  // 2. Semantic intent keywords
   if (q.includes("trend") || q.includes("over time") || q.includes("monthly") || q.includes("yearly") || q.includes("date") || q.includes("timeline")) {
     return "line";
   }
-  
-  if (q.includes("distribution") || q.includes("spread") || q.includes("histogram") || q.includes("frequency")) {
+  if (q.includes("distribution") || q.includes("spread") || q.includes("frequency")) {
     return "histogram";
   }
-  
-  if (q.includes("proportion") || q.includes("percentage") || q.includes("share") || q.includes("ratio") || q.includes("pie")) {
+  if (q.includes("proportion") || q.includes("percentage") || q.includes("share") || q.includes("ratio")) {
     return "pie";
   }
-  
-  if (q.includes("correlation") || q.includes("relationship") || q.includes("vs") || q.includes("against") || q.includes("scatter")) {
+  if (q.includes("correlation") || q.includes("relationship") || q.includes(" vs ") || q.includes(" vs.") || q.includes("against") || q.includes("scatter")) {
     return "scatter";
   }
-
-  // Explicit bar-chart intent keywords
-  if (q.includes("bar chart") || q.includes("compare") || q.includes("breakdown") || q.includes("by category") || q.includes("top") || q.includes("rank")) {
+  if (q.includes("compare") || q.includes("breakdown") || q.includes("by category") || q.includes("top") || q.includes("rank")) {
     return "bar";
   }
 
-  // No clear chart intent detected
+  // 3. Generic visualization request with no specific type named — default to bar
+  if (q.includes("chart") || q.includes("graph") || q.includes("plot") || q.includes("visuali")) {
+    return "bar";
+  }
+
+  // No chart intent detected at all
   return null;
 }
 

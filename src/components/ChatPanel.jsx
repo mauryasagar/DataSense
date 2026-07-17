@@ -95,6 +95,23 @@ export default function ChatPanel({ activeTab, fileType, parsedData, ai, chatHis
           return;
         }
 
+        // NEW: pure visualization request with no specific stat to report — respond locally, skip the AI model entirely
+        if (chartData) {
+          const chartLabel = { line: 'line chart', bar: 'bar chart', pie: 'pie chart', histogram: 'histogram', scatter: 'scatter plot' }[chartType] || 'chart';
+          setChatHistory(prev => {
+            const next = [...prev];
+            next[next.length - 1] = {
+              question: q,
+              answer: `Here's a ${chartLabel} of your data:`,
+              chartType,
+              chartData,
+              loading: false
+            };
+            return next;
+          });
+          return;
+        }
+
         if (ai.status !== 'ready') {
           setChatHistory(prev => {
             const next = [...prev];
