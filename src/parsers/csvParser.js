@@ -11,7 +11,6 @@ export function parseCSV(file) {
       header: true,
       dynamicTyping: true,
       skipEmptyLines: true,
-      worker: true,
       complete: (results) => {
         if (results.errors.length > 0 && results.data.length === 0) {
           reject(new Error("Failed to parse CSV. Please ensure it is a valid format."));

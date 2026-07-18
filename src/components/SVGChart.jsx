@@ -56,7 +56,7 @@ export default function SVGChart({ type, data }) {
         <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">{title}</span>
         {badge && <span className="text-[9px] font-semibold text-zinc-400 dark:text-zinc-500 bg-zinc-100 dark:bg-zinc-800/50 px-2 py-0.5 rounded-full">{badge}</span>}
       </div>
-      <svg width="100%" viewBox={`0 0 ${W} ${H}`} className="overflow-visible select-none">
+      <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox={`0 0 ${W} ${H}`} className="overflow-visible select-none">
         {children}
       </svg>
     </div>
@@ -140,7 +140,10 @@ export default function SVGChart({ type, data }) {
     const cx = 110, cy = H / 2, R = 72, r = 36;
     let ang = -90;
     const slices = values.map((v, i) => {
-      const pct = v / total, deg = pct * 360, s = ang, e = ang + deg; ang = e;
+      const pct = v / total;
+      let deg = pct * 360;
+      if (deg >= 360) deg = 359.99;
+      const s = ang, e = ang + deg; ang = e;
       const toR = d => d * Math.PI / 180;
       const [x1, y1] = [cx + R * Math.cos(toR(s)), cy + R * Math.sin(toR(s))];
       const [x2, y2] = [cx + R * Math.cos(toR(e)), cy + R * Math.sin(toR(e))];

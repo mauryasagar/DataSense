@@ -3,42 +3,7 @@
  * Consolidates the building of AI prompts and contexts for all supported file types.
  */
 
-/**
- * Builds context for CSV question-answering
- */
-export function buildCSVContext(columns, columnTypes, eda, rows) {
-  let ctx = `Dataset Overview:\n`;
-  ctx += `- Total rows: ${eda.overview.totalRows}\n`;
-  ctx += `- Total columns: ${eda.overview.totalCols}\n\n`;
 
-  ctx += `Columns & Key Stats:\n`;
-  columns.forEach(col => {
-    const type = columnTypes[col];
-    ctx += `- ${col} (${type}): `;
-    if (type === 'numeric' && eda.numericStats[col]) {
-      const stats = eda.numericStats[col];
-      ctx += `Min=${stats.min}, Max=${stats.max}, Mean=${stats.mean.toFixed(2)}, Median=${stats.median}\n`;
-    } else if (eda.categoricalStats[col]) {
-      const stats = eda.categoricalStats[col];
-      const topVals = stats.topValues.map(v => `"${v.value}" (${v.count})`).join(', ');
-      ctx += `UniqueCount=${stats.uniqueCount}, TopFreqValues=[${topVals}]\n`;
-    } else {
-      ctx += `UniqueCount=${eda.categoricalStats[col]?.uniqueCount || 0}\n`;
-    }
-  });
-
-  ctx += `\nFirst 10 Rows (Readable Text):\n`;
-  const previewRows = rows.slice(0, 10);
-  previewRows.forEach((row, idx) => {
-    ctx += `Row ${idx + 1}: ${JSON.stringify(row)}\n`;
-  });
-
-  const words = ctx.split(/\s+/);
-  if (words.length > 400) {
-    return words.slice(0, 400).join(' ') + '\n... [truncated]';
-  }
-  return ctx;
-}
 
 
 
