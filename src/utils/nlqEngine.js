@@ -32,6 +32,7 @@ export function isSmallTalk(question) {
 }
 
 function fmt(n) {
+  if (n == null) return 'null';
   if (typeof n !== 'number' || isNaN(n)) return String(n);
   if (Number.isInteger(n)) return n.toLocaleString();
   return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
@@ -124,7 +125,7 @@ export function answerLocally(question, parsedData) {
   if (intent === 'missing') {
     const col = mentionedCols[0];
     if (col && edaResult.missingAnalysis[col] !== undefined) {
-      const missing = edaResult.missingAnalysis[col]?.count ?? edaResult.missingAnalysis[col];
+      const missing = edaResult.missingAnalysis[col].count;
       return {
         answer: `The **${col}** column has **${fmt(missing)} missing value(s)** out of ${fmt(edaResult.overview.totalRows)} rows.`,
         confidence: 'high'
@@ -132,8 +133,8 @@ export function answerLocally(question, parsedData) {
     }
     const { totalMissing } = edaResult.overview;
     const missingDetails = Object.entries(edaResult.missingAnalysis || {})
-      .filter(([, v]) => (v?.count ?? v) > 0)
-      .map(([c, v]) => `${c}: ${v?.count ?? v}`)
+      .filter(([, v]) => v.count > 0)
+      .map(([c, v]) => `${c}: ${v.count}`)
       .join(', ');
     return {
       answer: `There are **${fmt(totalMissing)} missing values** in total across the dataset${missingDetails ? `. Breakdown — ${missingDetails}` : ''}.`,
@@ -425,9 +426,9 @@ export function buildRichAIContext(parsedData) {
   });
 
   // Missing values
-  const missingCols = Object.entries(edaResult.missingAnalysis || {}).filter(([, v]) => (v?.count ?? v) > 0);
+  const missingCols = Object.entries(edaResult.missingAnalysis || {}).filter(([, v]) => v.count > 0);
   if (missingCols.length > 0) {
-    ctx += `Missing values: ${missingCols.map(([c, v]) => `${c} has ${v?.count ?? v} missing`).join(', ')}.\n`;
+    ctx += `Missing values: ${missingCols.map(([c, v]) => `${c} has ${v.count} missing`).join(', ')}.\n`;
   } else {
     ctx += `No missing values in this dataset.\n`;
   }

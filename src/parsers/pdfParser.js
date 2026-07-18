@@ -24,52 +24,32 @@ export async function parsePDF(file) {
       
       const items = textContent.items.filter(item => item.str && item.str.trim() !== '');
       
-      const columns = [];
-      items.forEach(item => {
-        const x = item.transform[4];
-        let placed = false;
-        for (const col of columns) {
-          // Cluster items within ~150 pixels of horizontal drift
-          if (Math.abs(col.baseX - x) < 150) {
-            col.items.push(item);
-            placed = true;
-            break;
-          }
-        }
-        if (!placed) {
-          columns.push({ baseX: x, items: [item] });
-        }
+      // Sort items top-to-bottom, then left-to-right
+      items.sort((a, b) => {
+        const yDiff = b.transform[5] - a.transform[5];
+        if (Math.abs(yDiff) > 8) return yDiff; // top-to-bottom
+        return a.transform[4] - b.transform[4]; // left-to-right
       });
 
-      columns.sort((a, b) => a.baseX - b.baseX);
-
       let pageText = '';
-      for (const col of columns) {
-        col.items.sort((a, b) => {
-          const yDiff = b.transform[5] - a.transform[5];
-          if (Math.abs(yDiff) > 8) return yDiff; // top-to-bottom
-          return a.transform[4] - b.transform[4]; // left-to-right
-        });
+      let lastY = null;
+      let lastX = null;
+      
+      for (const item of items) {
+        const x = item.transform[4];
+        const y = item.transform[5];
 
-        let lastY = null;
-        let lastX = null;
-        for (const item of col.items) {
-          const x = item.transform[4];
-          const y = item.transform[5];
-
-          if (lastY !== null) {
-            const yDiff = Math.abs(y - lastY);
-            if (yDiff > 8) {
-              pageText += '\n';
-            } else if (lastX !== null && x > lastX + 12) {
-              pageText += ' ';
-            }
+        if (lastY !== null) {
+          const yDiff = Math.abs(y - lastY);
+          if (yDiff > 8) {
+            pageText += '\n'; // new line
+          } else if (lastX !== null && x > lastX + 12) {
+            pageText += ' '; // space between words
           }
-          pageText += item.str;
-          lastY = y;
-          lastX = x + (item.width || 0);
         }
-        pageText += '\n\n';
+        pageText += item.str;
+        lastY = y;
+        lastX = x + (item.width || 0);
       }
 
       fullText += pageText + '\n\n';

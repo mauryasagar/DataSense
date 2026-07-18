@@ -11,6 +11,7 @@ export function parseCSV(file) {
       header: true,
       dynamicTyping: true,
       skipEmptyLines: true,
+      worker: true,
       complete: (results) => {
         if (results.errors.length > 0 && results.data.length === 0) {
           reject(new Error("Failed to parse CSV. Please ensure it is a valid format."));
@@ -36,8 +37,7 @@ export function parseCSV(file) {
         // Detect data types per column
         const columnTypes = {};
         limitedColumns.forEach(col => {
-          const vals = rows.map(r => r[col]);
-          columnTypes[col] = detectColumnType(vals);
+          columnTypes[col] = detectColumnType(rows, col);
         });
 
         // Build data summary and execute EDA operations

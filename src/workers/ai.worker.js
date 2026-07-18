@@ -116,24 +116,16 @@ self.addEventListener('message', async (event) => {
           { role: 'user', content: `Context:\n${context}\n\nQuestion: ${question}\n\nAnswer using ONLY the context above.` }
         ];
         let prompt = generatorPipeline.tokenizer.apply_chat_template(messages, { tokenize: false, add_generation_prompt: true });
-        prompt += "Answer (context-only, no outside knowledge):";
 
         const response = await generatorPipeline(prompt, {
           max_new_tokens: tokenBudget,
-          temperature: 0.4,
+          temperature: 0.3,
           top_p: 0.9,
           do_sample: true,
-          repetition_penalty: 1.15,
-          no_repeat_ngram_size: 3,
           return_full_text: false
         });
 
         let answer = trimToCompleteSentence(stripRepetition(response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1')));
-        
-        // Remove the appended instruction prompt if the model echoed it back
-        if (answer.toLowerCase().startsWith("answer (context-only")) {
-          answer = answer.replace(/^answer \(context-only, no outside knowledge\):?\s*/i, '');
-        }
 
         // Lightweight grounding check
         const stopWords = new Set(['what', 'is', 'the', 'a', 'an', 'of', 'and', 'or', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'about', 'how', 'why', 'where', 'when', 'who', 'which', 'do', 'does', 'did', 'are', 'was', 'were', 'has', 'have', 'had', 'can', 'could', 'should', 'would', 'this', 'that', 'it', 'from', 'as', 'be', 'will', 'not']);
@@ -175,11 +167,9 @@ self.addEventListener('message', async (event) => {
 
         const response = await generatorPipeline(prompt, {
           max_new_tokens: 100,
-          temperature: 0.4,
+          temperature: 0.3,
           top_p: 0.9,
           do_sample: true,
-          repetition_penalty: 1.15,
-          no_repeat_ngram_size: 3,
           return_full_text: false
         });
 
@@ -228,11 +218,9 @@ self.addEventListener('message', async (event) => {
 
         const response = await generatorPipeline(prompt, {
           max_new_tokens: 80,
-          temperature: 0.4,
+          temperature: 0.3,
           top_p: 0.9,
           do_sample: true,
-          repetition_penalty: 1.15,
-          no_repeat_ngram_size: 3,
           return_full_text: false
         });
 

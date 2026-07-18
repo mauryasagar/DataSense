@@ -72,14 +72,16 @@ export function calculateCorrelation(x, y) {
 }
 
 // Function to detect type for a column
-export function detectColumnType(values) {
-  const nonNulls = values.filter(v => v !== null && v !== undefined && v !== '');
-  if (nonNulls.length === 0) return 'categorical';
-
+export function detectColumnType(rows, col) {
   let numericCount = 0;
   let dateCount = 0;
+  let nonNullCount = 0;
 
-  for (const val of nonNulls) {
+  for (let i = 0; i < rows.length; i++) {
+    const val = rows[i][col];
+    if (val === null || val === undefined || val === '') continue;
+    
+    nonNullCount++;
     if (typeof val === 'number') {
       numericCount++;
     } else if (typeof val === 'boolean') {
@@ -98,9 +100,9 @@ export function detectColumnType(values) {
     }
   }
 
-  const total = nonNulls.length;
-  if (numericCount / total > 0.7) return 'numeric';
-  if (dateCount / total > 0.7) return 'date';
+  if (nonNullCount === 0) return 'categorical';
+  if (numericCount / nonNullCount > 0.7) return 'numeric';
+  if (dateCount / nonNullCount > 0.7) return 'date';
   return 'categorical';
 }
 
@@ -152,17 +154,28 @@ export function runFullEDA(rows, columns, columnTypes) {
 
   columns.forEach(col => {
     const type = columnTypes[col];
-    const nonNullValues = rows
-      .map(row => row[col])
-      .filter(val => val !== null && val !== undefined && val !== '');
-      
-    // Common: Unique count
-    const uniqueValues = new Set(nonNullValues);
+    const uniqueValues = new Set();
+    const numbers = [];
+    const frequencies = {};
+
+    for (let i = 0; i < rows.length; i++) {
+      const val = rows[i][col];
+      if (val !== null && val !== undefined && val !== '') {
+        uniqueValues.add(val);
+        
+        if (type === 'numeric') {
+          const num = typeof val === 'number' ? val : parseFloat(val);
+          if (!isNaN(num)) numbers.push(num);
+        } else {
+          const valStr = String(val);
+          frequencies[valStr] = (frequencies[valStr] || 0) + 1;
+        }
+      }
+    }
+
     const uniqueCount = uniqueValues.size;
 
     if (type === 'numeric') {
-      // Coerce all to number
-      const numbers = nonNullValues.map(v => typeof v === 'number' ? v : parseFloat(v)).filter(v => !isNaN(v));
       if (numbers.length > 0) {
         const min = Math.min(...numbers);
         const max = Math.max(...numbers);
@@ -186,12 +199,6 @@ export function runFullEDA(rows, columns, columnTypes) {
       }
     } else {
       // Categorical (or Date treated as categorical for frequencies)
-      const frequencies = {};
-      nonNullValues.forEach(val => {
-        const valStr = String(val);
-        frequencies[valStr] = (frequencies[valStr] || 0) + 1;
-      });
-
       const sortedFreqs = Object.entries(frequencies)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 5)
