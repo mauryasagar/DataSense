@@ -2,7 +2,10 @@ import React from 'react';
 import { Cpu, RefreshCw } from 'lucide-react';
 
 export default function EdaDashboard({ activeTab, fileType, parsedData, file, ai, pdfSummary, pdfSummaryLoading, triggerPDFSummaryManual }) {
-  if (activeTab !== 'eda' || fileType !== 'csv' || !parsedData?.edaResult) return null;
+  const isCsvEda = activeTab === 'eda' && fileType === 'csv' && parsedData?.edaResult;
+  const isPdfSummary = activeTab === 'pdf-summary' && fileType === 'pdf';
+
+  if (!isCsvEda && !isPdfSummary) return null;
 
   return (
     <div className="flex-1 overflow-y-auto bg-zinc-50/30 dark:bg-zinc-950/30 grid-pattern-scroll font-sans">
@@ -13,11 +16,12 @@ export default function EdaDashboard({ activeTab, fileType, parsedData, file, ai
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-              <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">EDA Copilot</span>
+              <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">{isPdfSummary ? 'Doc Copilot' : 'EDA Copilot'}</span>
             </div>
-            <h2 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight">Exploratory Data Analysis</h2>
+            <h2 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight">{isPdfSummary ? 'Document Summary' : 'Exploratory Data Analysis'}</h2>
             <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-              Automated statistical insights for <span className="font-semibold text-zinc-800 dark:text-zinc-300">{file.name}</span>
+              {isPdfSummary ? 'Automated AI summary for ' : 'Automated statistical insights for '}
+              <span className="font-semibold text-zinc-800 dark:text-zinc-300">{file.name}</span>
             </p>
           </div>
           {!pdfSummary && !pdfSummaryLoading && (
@@ -52,6 +56,8 @@ export default function EdaDashboard({ activeTab, fileType, parsedData, file, ai
           </div>
         )}
 
+        {isCsvEda && (
+          <>
         {/* Overview Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
@@ -251,6 +257,8 @@ export default function EdaDashboard({ activeTab, fileType, parsedData, file, ai
             )}
           </div>
         </div>
+          </>
+        )}
 
       </div>
     </div>

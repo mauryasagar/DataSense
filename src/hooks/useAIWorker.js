@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 // Singleton worker references to prevent double loading
 let globalWorker = null;
 let globalListeners = new Set();
+let pendingRequests = new Map();
 let globalState = {
   status: 'idle', // 'idle' | 'loading' | 'initializing' | 'ready' | 'error'
   progress: 0,
@@ -19,7 +20,20 @@ function getWorker() {
     );
 
     globalWorker.addEventListener('message', (event) => {
-      const { type, payload, status } = event.data;
+      const { type, payload, status, requestId } = event.data;
+
+      if (requestId && pendingRequests.has(requestId)) {
+        const req = pendingRequests.get(requestId);
+        if (type === 'ERROR') {
+          pendingRequests.delete(requestId);
+          req.reject(new Error(payload));
+          return;
+        } else if (type === req.expectedResponseType) {
+          pendingRequests.delete(requestId);
+          req.resolve(payload);
+          return;
+        }
+      }
 
       if (type === 'STATUS') {
         globalState.status = status;
@@ -80,27 +94,18 @@ export function useAIWorker() {
     return new Promise((resolve, reject) => {
       const worker = getWorker();
       const requestId = `${type}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      
+      let expectedResponseType = '';
+      if (type === 'ANSWER_QUESTION') expectedResponseType = 'ANSWER_READY';
+      if (type === 'SUMMARIZE') expectedResponseType = 'SUMMARY_READY';
+      if (type === 'EXPLAIN_CELL') expectedResponseType = 'EXPLAIN_CELL_READY';
 
-      // Create a temporary message listener for this specific request
-      const handleResponse = (event) => {
-        const { type: responseType, payload: responsePayload, requestId: responseRequestId } = event.data;
+      pendingRequests.set(requestId, {
+        resolve,
+        reject,
+        expectedResponseType
+      });
 
-        if (responseRequestId !== requestId) return;
-
-        if (responseType === 'ERROR') {
-          worker.removeEventListener('message', handleResponse);
-          reject(new Error(responsePayload));
-        } else if (
-          (type === 'ANSWER_QUESTION' && responseType === 'ANSWER_READY') ||
-          (type === 'SUMMARIZE' && responseType === 'SUMMARY_READY') ||
-          (type === 'EXPLAIN_CELL' && responseType === 'EXPLAIN_CELL_READY')
-        ) {
-          worker.removeEventListener('message', handleResponse);
-          resolve(responsePayload);
-        }
-      };
-
-      worker.addEventListener('message', handleResponse);
       worker.postMessage({ type, payload, requestId });
     });
   };

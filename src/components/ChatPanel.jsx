@@ -33,7 +33,7 @@ function retrieveRelevantContext(question, paragraphs) {
   const selected = [];
   let currentLength = 0;
   for (const item of scoredParagraphs) {
-    if (item.score <= 0 && selected.length > 0) break;
+    if (item.score <= 0) break;
     if (currentLength + item.p.length > 1500 && selected.length > 0) continue;
     selected.push(item);
     currentLength += item.p.length;
