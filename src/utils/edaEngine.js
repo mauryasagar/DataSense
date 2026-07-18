@@ -208,32 +208,55 @@ export function runFullEDA(rows, columns, columnTypes) {
   const correlationMatrix = {};
   const numericCols = columns.filter(col => columnTypes[col] === 'numeric');
 
-  numericCols.forEach(col1 => {
-    correlationMatrix[col1] = {};
-    numericCols.forEach(col2 => {
-      if (col1 === col2) {
-        correlationMatrix[col1][col2] = 1.0;
-      } else {
-        // Get paired non-null values
-        const x = [];
-        const y = [];
-        rows.forEach(row => {
-          const val1 = row[col1];
-          const val2 = row[col2];
-          if (val1 !== null && val1 !== undefined && val1 !== '' &&
-              val2 !== null && val2 !== undefined && val2 !== '') {
-            const num1 = typeof val1 === 'number' ? val1 : parseFloat(val1);
-            const num2 = typeof val2 === 'number' ? val2 : parseFloat(val2);
-            if (!isNaN(num1) && !isNaN(num2)) {
-              x.push(num1);
-              y.push(num2);
-            }
-          }
-        });
-        correlationMatrix[col1][col2] = calculateCorrelation(x, y);
+  // Pre-parse numeric values to prevent O(N^2 * R) redundant parse/type-checks
+  const parsedNumericRows = [];
+  rows.forEach(row => {
+    const pRow = {};
+    let hasData = false;
+    numericCols.forEach(col => {
+      const val = row[col];
+      if (val !== null && val !== undefined && val !== '') {
+        const num = typeof val === 'number' ? val : parseFloat(val);
+        if (!isNaN(num)) {
+          pRow[col] = num;
+          hasData = true;
+        }
       }
     });
+    if (hasData) {
+      parsedNumericRows.push(pRow);
+    }
   });
+
+  // Initialize matrix
+  numericCols.forEach(col => {
+    correlationMatrix[col] = {};
+  });
+
+  // Calculate correlation symmetric half only
+  for (let i = 0; i < numericCols.length; i++) {
+    for (let j = i; j < numericCols.length; j++) {
+      const col1 = numericCols[i];
+      const col2 = numericCols[j];
+
+      if (i === j) {
+        correlationMatrix[col1][col2] = 1.0;
+      } else {
+        const x = [];
+        const y = [];
+        for (let r = 0; r < parsedNumericRows.length; r++) {
+          const pRow = parsedNumericRows[r];
+          if (pRow[col1] !== undefined && pRow[col2] !== undefined) {
+            x.push(pRow[col1]);
+            y.push(pRow[col2]);
+          }
+        }
+        const corr = calculateCorrelation(x, y);
+        correlationMatrix[col1][col2] = corr;
+        correlationMatrix[col2][col1] = corr;
+      }
+    }
+  }
 
   return {
     overview: {

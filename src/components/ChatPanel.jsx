@@ -18,7 +18,8 @@ function retrieveRelevantContext(question, paragraphs) {
     words.forEach(w => {
       if (lp.includes(w)) {
         score += 1;
-        const regex = new RegExp('\\b' + w + '\\b', 'g');
+        const escapedW = w.replace(/[.*+?^{}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp('\\b' + escapedW + '\\b', 'g');
         const matches = lp.match(regex);
         if (matches) {
           score += matches.length * 0.5;
@@ -29,6 +30,10 @@ function retrieveRelevantContext(question, paragraphs) {
   });
 
   scoredParagraphs.sort((a, b) => b.score - a.score);
+
+  if (scoredParagraphs.length === 0 || scoredParagraphs[0].score <= 0) {
+    return '';
+  }
 
   const selected = [];
   let currentLength = 0;

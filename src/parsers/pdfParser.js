@@ -22,29 +22,54 @@ export async function parsePDF(file) {
       const page = await pdf.getPage(i);
       const textContent = await page.getTextContent();
       
-      let pageText = '';
-      let lastY = null;
-      let lastX = null;
-
-      for (const item of textContent.items) {
-        if (!item.str) continue;
-        
+      const items = textContent.items.filter(item => item.str && item.str.trim() !== '');
+      
+      const columns = [];
+      items.forEach(item => {
         const x = item.transform[4];
-        const y = item.transform[5];
-
-        if (lastY !== null) {
-          // If Y coordinate has changed significantly, insert a newline
-          const yDiff = Math.abs(y - lastY);
-          if (yDiff > 8) {
-            pageText += '\n';
-          } else if (lastX !== null && x > lastX + 12 && item.str.trim() !== '') {
-            // If X coordinate has moved significantly right, insert space
-            pageText += ' ';
+        let placed = false;
+        for (const col of columns) {
+          // Cluster items within ~150 pixels of horizontal drift
+          if (Math.abs(col.baseX - x) < 150) {
+            col.items.push(item);
+            placed = true;
+            break;
           }
         }
-        pageText += item.str;
-        lastY = y;
-        lastX = x + (item.width || 0);
+        if (!placed) {
+          columns.push({ baseX: x, items: [item] });
+        }
+      });
+
+      columns.sort((a, b) => a.baseX - b.baseX);
+
+      let pageText = '';
+      for (const col of columns) {
+        col.items.sort((a, b) => {
+          const yDiff = b.transform[5] - a.transform[5];
+          if (Math.abs(yDiff) > 8) return yDiff; // top-to-bottom
+          return a.transform[4] - b.transform[4]; // left-to-right
+        });
+
+        let lastY = null;
+        let lastX = null;
+        for (const item of col.items) {
+          const x = item.transform[4];
+          const y = item.transform[5];
+
+          if (lastY !== null) {
+            const yDiff = Math.abs(y - lastY);
+            if (yDiff > 8) {
+              pageText += '\n';
+            } else if (lastX !== null && x > lastX + 12) {
+              pageText += ' ';
+            }
+          }
+          pageText += item.str;
+          lastY = y;
+          lastX = x + (item.width || 0);
+        }
+        pageText += '\n\n';
       }
 
       fullText += pageText + '\n\n';
@@ -59,13 +84,24 @@ export async function parsePDF(file) {
     const rawLines = cleanedText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     const paragraphs = [];
     let currentParagraph = '';
+    
+    const abbreviations = ['Mr', 'Ms', 'Dr', 'Inc', 'Ltd', 'e.g', 'i.e', 'U.S', 'U.K', 'vs', 'etc', 'Prof', 'St'];
 
     for (const line of rawLines) {
       if (currentParagraph === '') {
         currentParagraph = line;
       } else {
-        const endsWithPeriod = /[.!?:]$/.test(currentParagraph);
+        let endsWithPeriod = /[.!?:]$/.test(currentParagraph);
         const startsWithCapital = /^[A-Z]/.test(line);
+
+        if (endsWithPeriod) {
+          for (const abbr of abbreviations) {
+            if (currentParagraph.endsWith(abbr + '.')) {
+              endsWithPeriod = false;
+              break;
+            }
+          }
+        }
 
         // Heuristics: Start a new paragraph if previous ends with punctuation and new line starts with a capital letter, OR if current paragraph is sufficiently long
         if (currentParagraph.length > 400 || (endsWithPeriod && startsWithCapital && currentParagraph.length > 150)) {
