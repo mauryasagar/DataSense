@@ -168,8 +168,8 @@ self.addEventListener('message', async (event) => {
 
         // Construct summarization prompt
         const messages = [
-          { role: 'system', content: `You are a helpful data assistant. Write a clear, concise 2-3 sentence executive summary of the following data metrics. Focus on key details and keep it highly professional.\nText:\n${text}` },
-          { role: 'user', content: 'Summarize this data.' }
+          { role: 'system', content: `You are a helpful assistant. Write a clear, concise 2-3 sentence executive summary of the following text. Focus on key details and keep it highly professional.\nText:\n${text}` },
+          { role: 'user', content: 'Summarize this text.' }
         ];
         const prompt = generatorPipeline.tokenizer.apply_chat_template(messages, { tokenize: false, add_generation_prompt: true });
 
@@ -196,7 +196,7 @@ self.addEventListener('message', async (event) => {
         for (const w of words) {
           if (/^[A-Z][a-zA-Z]*$/.test(w.replace(/[^a-zA-Z]/g, ''))) {
             consecutiveCaps++;
-            if (consecutiveCaps > 6) {
+            if (consecutiveCaps > 15) {
               isKeywordList = true;
               break;
             }
