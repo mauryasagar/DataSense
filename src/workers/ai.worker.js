@@ -70,6 +70,9 @@ self.addEventListener('message', async (event) => {
         };
 
         // Load unified SmolLM text-generation pipeline if not loaded
+        // NOTE: SmolLM2-135M-Instruct is a very small 135M-parameter model and may struggle to reliably follow 
+        // RAG-style grounding instructions. If hallucination persists despite the prompt structure, 
+        // upgrading to a larger quantized instruct model (like Qwen2.5-0.5B-Instruct) may be necessary.
         if (!generatorPipeline) {
           generatorPipeline = await pipeline(
             'text-generation',
@@ -105,25 +108,54 @@ self.addEventListener('message', async (event) => {
         }
         
         const wantsDetail = /\b(detailed|breakdown|elaborate|explain|list|summariz|in depth|comprehensive)\b/i.test(question);
-        const tokenBudget = wantsDetail ? 220 : 150;
+        const tokenBudget = wantsDetail ? 150 : 80;
 
         // Construct Qwen instruction prompt
         const messages = [
-          { role: 'system', content: `You are a helpful data assistant. Answer the user's question accurately and concisely using only the context provided below, in no more than 5 complete sentences. Always finish your final sentence — never trail off. If you cannot find the answer in the context, say "I couldn't find a clear answer in the document.".\nContext:\n${context}` },
-          { role: 'user', content: question }
+          { role: 'system', content: 'You are a document assistant. Only use the provided context to answer. If the answer is not in the context, say so explicitly. Do not use outside knowledge. Answer in no more than 5 complete sentences. Always finish your final sentence — never trail off.' },
+          { role: 'user', content: `Context:\n${context}\n\nQuestion: ${question}\n\nAnswer using ONLY the context above.` }
         ];
-        const prompt = generatorPipeline.tokenizer.apply_chat_template(messages, { tokenize: false, add_generation_prompt: true });
+        let prompt = generatorPipeline.tokenizer.apply_chat_template(messages, { tokenize: false, add_generation_prompt: true });
+        prompt += "Answer (context-only, no outside knowledge):";
 
         const response = await generatorPipeline(prompt, {
           max_new_tokens: tokenBudget,
-          temperature: 0.2,
-          do_sample: false,
-          repetition_penalty: 1.3,
+          temperature: 0.4,
+          top_p: 0.9,
+          do_sample: true,
+          repetition_penalty: 1.15,
           no_repeat_ngram_size: 3,
           return_full_text: false
         });
 
-        const answer = trimToCompleteSentence(stripRepetition(response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1')));
+        let answer = trimToCompleteSentence(stripRepetition(response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1')));
+        
+        // Remove the appended instruction prompt if the model echoed it back
+        if (answer.toLowerCase().startsWith("answer (context-only")) {
+          answer = answer.replace(/^answer \(context-only, no outside knowledge\):?\s*/i, '');
+        }
+
+        // Lightweight grounding check
+        const stopWords = new Set(['what', 'is', 'the', 'a', 'an', 'of', 'and', 'or', 'in', 'on', 'at', 'to', 'for', 'with', 'by', 'about', 'how', 'why', 'where', 'when', 'who', 'which', 'do', 'does', 'did', 'are', 'was', 'were', 'has', 'have', 'had', 'can', 'could', 'should', 'would', 'this', 'that', 'it', 'from', 'as', 'be', 'will', 'not']);
+        const answerWords = answer.toLowerCase().split(/[\s_\-?.,!()"']+/).filter(w => w.length > 3 && !stopWords.has(w));
+        
+        let grounded = true;
+        if (answerWords.length > 0) {
+          let matchCount = 0;
+          const contextLower = context.toLowerCase();
+          for (const w of answerWords) {
+            if (contextLower.includes(w)) matchCount++;
+          }
+          // Require at least 20% of the meaningful words to overlap with context
+          if ((matchCount / answerWords.length) < 0.2) {
+            grounded = false;
+          }
+        }
+        
+        if (!grounded) {
+          answer = "I couldn't find a clear answer in the document.";
+        }
+
         self.postMessage({ type: 'ANSWER_READY', payload: { answer, score: 1.0 }, requestId });
         break;
       }
@@ -142,15 +174,41 @@ self.addEventListener('message', async (event) => {
         const prompt = generatorPipeline.tokenizer.apply_chat_template(messages, { tokenize: false, add_generation_prompt: true });
 
         const response = await generatorPipeline(prompt, {
-          max_new_tokens: 150,
-          temperature: 0.3,
-          do_sample: false,
-          repetition_penalty: 1.3,
+          max_new_tokens: 100,
+          temperature: 0.4,
+          top_p: 0.9,
+          do_sample: true,
+          repetition_penalty: 1.15,
           no_repeat_ngram_size: 3,
           return_full_text: false
         });
 
-        const summary = trimToCompleteSentence(stripRepetition(response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1')));
+        let summary = trimToCompleteSentence(stripRepetition(response[0].generated_text.trim().replace(/\\([.\-)])/g, '$1')));
+        
+        // Output sanity check to detect greedy degeneration/word salad
+        const first200 = summary.substring(0, 200);
+        const hasPunctuation = /[.!?]/.test(first200);
+        
+        // Check for long run of capitalized words without lowercase connectors
+        const words = summary.split(/\s+/);
+        let consecutiveCaps = 0;
+        let isKeywordList = false;
+        for (const w of words) {
+          if (/^[A-Z][a-zA-Z]*$/.test(w.replace(/[^a-zA-Z]/g, ''))) {
+            consecutiveCaps++;
+            if (consecutiveCaps > 6) {
+              isKeywordList = true;
+              break;
+            }
+          } else if (/^[a-z]+$/.test(w.replace(/[^a-zA-Z]/g, ''))) {
+            consecutiveCaps = 0;
+          }
+        }
+        
+        if (!hasPunctuation || isKeywordList || summary.length < 20) {
+           summary = "Summary could not be generated clearly for this document — try Doc Chat to ask specific questions instead.";
+        }
+
         self.postMessage({ type: 'SUMMARY_READY', payload: { summary }, requestId });
         break;
       }
@@ -170,9 +228,10 @@ self.addEventListener('message', async (event) => {
 
         const response = await generatorPipeline(prompt, {
           max_new_tokens: 80,
-          temperature: 0.3,
-          do_sample: false,
-          repetition_penalty: 1.3,
+          temperature: 0.4,
+          top_p: 0.9,
+          do_sample: true,
+          repetition_penalty: 1.15,
           no_repeat_ngram_size: 3,
           return_full_text: false
         });
